@@ -11,13 +11,13 @@ import (
 
 func main() {
 	router := gin.Default()
-	v1 := router.Group("/api/v1/todos")
+	v1 := router.Group("/api/v1/transactions")
 	{
-		v1.GET("/", listTodo)
-		// v1.POST("/", createTodo)
-		// v1.GET("/:id", showTodo)
-		// v1.PUT("/:id", updateTodo)
-		// v1.DELETE("/:id", deleteTodo)
+		v1.GET("/", listTransaction)
+		// v1.POST("/", createTransaction)
+		// v1.GET("/:id", showTransaction)
+		// v1.PUT("/:id", updateTransaction)
+		// v1.DELETE("/:id", deleteTransaction)
 	}
 	router.Run()
 }
@@ -32,106 +32,106 @@ func init() {
 		panic("failed to connect database")
 	}
 	//Migrate the schema
-	db.AutoMigrate(&todoModel{})
+	db.AutoMigrate(&TransactionModel{})
 }
 
 type (
-	// todoModel describes a todoModel type
-	todoModel struct {
+	// TransactionModel describes a TransactionModel type
+	TransactionModel struct {
 		gorm.Model
 		Title     string `json:"title"`
 		Completed int    `json:"completed"`
 	}
 
-	transformedTodo struct {
+	transformedTransaction struct {
 		ID        uint   `json:"id"`
 		Title     string `json:"title"`
 		Completed bool   `json:"completed"`
 	}
 )
 
-func createTodo(c *gin.Context) {
+func createTransaction(c *gin.Context) {
 	completed, _ := strconv.Atoi(c.PostForm("completed"))
-	todo := todoModel{Title: c.PostForm("title"), Completed: completed}
-	db.Save(&todo)
+	Transaction := TransactionModel{Title: c.PostForm("title"), Completed: completed}
+	db.Save(&Transaction)
 	c.JSON(
 		http.StatusCreated,
-		gin.H{"status": http.StatusCreated, "message": "Todo created successfully.", "resourceId": todo.ID})
+		gin.H{"status": http.StatusCreated, "message": "Transaction created successfully.", "resourceId": Transaction.ID})
 }
 
-func listTodo(c *gin.Context) {
-	var todos []todoModel
-	var _todos []transformedTodo
+func listTransaction(c *gin.Context) {
+	var Transactions []TransactionModel
+	var _Transactions []transformedTransaction
 
-	db.Find(&todos)
-	if len(todos) <= 0 {
+	db.Find(&Transactions)
+	if len(Transactions) <= 0 {
 		c.JSON(
 			http.StatusNotFound,
-			gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
+			gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
 
-	for _, item := range todos {
+	for _, item := range Transactions {
 		completed := false
 		if item.Completed == 1 {
 			completed = true
 		} else {
 			completed = false
 		}
-		_todos = append(_todos, transformedTodo{ID: item.ID, Title: item.Title, Completed: completed})
+		_Transactions = append(_Transactions, transformedTransaction{ID: item.ID, Title: item.Title, Completed: completed})
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _todos})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _Transactions})
 }
 
-func showTodo(c *gin.Context) {
-	var todo todoModel
-	todoID := c.Param("id")
+func showTransaction(c *gin.Context) {
+	var Transaction TransactionModel
+	TransactionID := c.Param("id")
 
-	db.First(&todo, todoID)
+	db.First(&Transaction, TransactionID)
 
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
+	if Transaction.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
 
 	completed := false
 
-	if todo.Completed == 1 {
+	if Transaction.Completed == 1 {
 		completed = true
 	} else {
 		completed = false
 	}
 
-	_todo := transformedTodo{ID: todo.ID, Title: todo.Title, Completed: completed}
+	_Transaction := transformedTransaction{ID: Transaction.ID, Title: Transaction.Title, Completed: completed}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _todo})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _Transaction})
 }
 
-func updateTodo(c *gin.Context) {
-	var todo todoModel
-	todoID := c.Param("id")
+func updateTransaction(c *gin.Context) {
+	var Transaction TransactionModel
+	TransactionID := c.Param("id")
 
-	db.First(&todo, todoID)
+	db.First(&Transaction, TransactionID)
 
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
+	if Transaction.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
 
-	db.Model(&todo).Update("title", c.PostForm("title"))
+	db.Model(&Transaction).Update("title", c.PostForm("title"))
 	completed, _ := strconv.Atoi(c.PostForm("completed"))
-	db.Model(&todo).Update("completed", completed)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Todo updated successfully!"})
+	db.Model(&Transaction).Update("completed", completed)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Transaction updated successfully!"})
 }
 
-func deleteTodo(c *gin.Context) {
-	var todo todoModel
-	todoID := c.Param("id")
-	db.First(&todo, todoID)
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
+func deleteTransaction(c *gin.Context) {
+	var Transaction TransactionModel
+	TransactionID := c.Param("id")
+	db.First(&Transaction, TransactionID)
+	if Transaction.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
-	db.Delete(&todo)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Todo deleted successfully!"})
+	db.Delete(&Transaction)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Transaction deleted successfully!"})
 }
