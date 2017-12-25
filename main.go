@@ -13,8 +13,8 @@ func main() {
 	router := gin.Default()
 	v1 := router.Group("/api/v1/todos")
 	{
-		v1.POST("/", createTodo)
 		v1.GET("/", listTodo)
+		v1.POST("/", createTodo)
 		v1.GET("/:id", showTodo)
 		v1.PUT("/:id", updateTodo)
 		v1.DELETE("/:id", deleteTodo)
@@ -51,7 +51,7 @@ type (
 )
 
 func createTodo(c *gin.Context) {
-	completed, _ := strconv.Atoi(c.PostForm("Added Todo"))
+	completed, _ := strconv.Atoi(c.PostForm("completed"))
 	todo := todoModel{Title: c.PostForm("title"), Completed: completed}
 	db.Save(&todo)
 	c.JSON(
