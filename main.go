@@ -14,10 +14,10 @@ func main() {
 	v1 := router.Group("/api/v1/todos")
 	{
 		v1.GET("/", listTodo)
-		v1.POST("/", createTodo)
-		v1.GET("/:id", showTodo)
-		v1.PUT("/:id", updateTodo)
-		v1.DELETE("/:id", deleteTodo)
+		// v1.POST("/", createTodo)
+		// v1.GET("/:id", showTodo)
+		// v1.PUT("/:id", updateTodo)
+		// v1.DELETE("/:id", deleteTodo)
 	}
 	router.Run()
 }
