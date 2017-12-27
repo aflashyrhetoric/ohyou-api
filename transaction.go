@@ -9,24 +9,24 @@ import (
 )
 
 type (
-	// TransactionModel describes a TransactionModel type
 	transaction struct {
 		gorm.Model
 		Description   string `json:"description"`
 		Amount        Price  `json:"amount"`
-		Beneficiaries []uint `json:"beneficiaries"`
+		Beneficiaries []user `json:"beneficiaries"`
 	}
 	transformedTransaction struct {
 		ID            uint   `json:"id"`
 		Description   string `json:"description"`
 		Amount        Price  `json:"amount"`
-		Beneficiaries []uint `json:"beneficiaries"`
+		Beneficiaries []user `json:"beneficiaries"`
 	}
 )
 
 func createTransaction(c *gin.Context) {
 	description := c.PostForm("description")
 	price, _ := ConvertToPrice(strconv.Atoi(c.PostForm("price")))
+	// beneficiaries := c.PostForm("beneficiaries")
 	beneficiaries := c.PostForm("beneficiaries")
 	transaction := transaction{Description: description, Amount: price, Beneficiaries: beneficiaries}
 	db.Save(&transaction)

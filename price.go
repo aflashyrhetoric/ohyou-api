@@ -14,7 +14,6 @@ func ConvertToPrice(price int, err error) (Price, error) {
 	// price is received as pennies
 
 	stringPrice := string(price)
-
 	dollars, _ := strconv.Atoi(stringPrice[:len(stringPrice)-2])
 	cents, _ := strconv.Atoi(stringPrice[len(stringPrice)-2:])
 
