@@ -5,23 +5,20 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 type (
 	transaction struct {
-		gorm.Model
-		Description string `json:"description"`
-		Purchaser   uint   `json:"purchaser"`
-		Amount      uint   `json:"amount"`
+		Description string `db:"description"`
+		Purchaser   uint   `db:"purchaser"`
+		Amount      uint   `db:"amount"`
 	}
 	transformedTransaction struct {
-		ID            uint   `json:"id"`
-		Description   string `json:"description"`
-		Purchaser     uint   `json:"purchaser"`
-		Amount        uint   `json:"amount"`
-		Beneficiaries []User `json:"beneficiaries"`
-		Users         []User `gorm:"many2many:user_beneficiaries;"`
+		ID            uint   `db:"id"`
+		Description   string `db:"description"`
+		Purchaser     uint   `db:"purchaser"`
+		Amount        uint   `db:"amount"`
+		Beneficiaries []User `db:"beneficiaries"`
 	}
 )
 

@@ -24,7 +24,7 @@ var db *gorm.DB
 func init() {
 	//open a db connection
 	var err error
-	db, err = gorm.Open("mysql", "root:password@/godo?charset=utf8&parseTime=True&loc=Local")
+	db, err = gorm.Open("mysql", "root:password@/ohyou_api?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		panic("failed to connect database")
 	}
