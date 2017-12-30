@@ -2,9 +2,11 @@ package main
 
 import "github.com/jinzhu/gorm"
 
-type user struct {
+type User struct {
 	gorm.Model
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+
+	Purchases []Transaction `gorm:"ForeignKey:Purchaser"`
 }

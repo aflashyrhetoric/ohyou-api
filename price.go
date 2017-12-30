@@ -19,3 +19,13 @@ func ConvertToPrice(price int, err error) (Price, error) {
 
 	return Price{Dollars: dollars, Cents: int8(cents)}, err
 }
+
+// ConvertDollarsToCents - Converts a float64 currency to integers (in cents/pennies)
+func ConvertDollarsToCents(price float64, err error) (int, error) {
+	return int(price * 100), nil
+}
+
+// ConvertCentsToDollars - Converts a integers currency to float64
+func ConvertCentsToDollars(price int, err error) (float64, error) {
+	return float64(price * .01), nil
+}
