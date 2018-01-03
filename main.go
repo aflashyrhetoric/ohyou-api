@@ -1,9 +1,10 @@
 package main
 
 import (
+	"database/sql"
+	"log"
+
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func main() {
@@ -19,15 +20,11 @@ func main() {
 	router.Run()
 }
 
-var db *gorm.DB
-
 func init() {
-	//open a db connection
-	var err error
-	db, err = gorm.Open("mysql", "root:password@/ohyou_api?charset=utf8&parseTime=True&loc=Local")
+	// Initialize sql.DB
+	db, err := sql.Open("mysql", "root:password@tcp(localhost)/sqltest")
 	if err != nil {
-		panic("failed to connect database")
+		log.Fatal(err)
 	}
-	//Migrate the schema
-	db.AutoMigrate(&transaction{})
+	defer db.Close()
 }

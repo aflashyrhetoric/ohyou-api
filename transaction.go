@@ -23,12 +23,18 @@ type (
 )
 
 func createTransaction(c *gin.Context) {
-	// description := json.Marshal(true)
+	// Retrieve POST values
 	description := c.PostForm("description")
 	amount, _ := ConvertDollarsToCents(strconv.ParseFloat(c.PostForm("amount"), 32))
 	beneficiaries := c.PostForm("beneficiaries")
+
+	// Build
 	transaction := transaction{Description: description, Amount: amount, Beneficiaries: beneficiaries}
+
+	// Save
 	db.Save(&transaction)
+
+	// Response
 	c.JSON(
 		http.StatusCreated,
 		gin.H{"status": http.StatusCreated, "message": "Transaction created successfully.", "resourceId": transaction.ID})
