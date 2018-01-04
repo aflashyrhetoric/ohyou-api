@@ -20,12 +20,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	// err = db.Ping()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// } else {
-	// 	fmt.Println("\n[OHYOU-debug] Successfully connected to database.\n")
-	// }
 
 	// Configure Router
 	router := gin.Default()

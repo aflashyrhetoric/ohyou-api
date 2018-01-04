@@ -10,16 +10,16 @@ import (
 
 type (
 	transaction struct {
-		Description string `db:"description"`
-		Purchaser   uint   `db:"purchaser"`
-		Amount      uint   `db:"amount"`
+		description string `db:"description"`
+		purchaser   int    `db:"purchaser"`
+		amount      int    `db:"amount"`
 	}
 	transformedTransaction struct {
-		ID            uint   `db:"id"`
-		Description   string `db:"description"`
-		Purchaser     uint   `db:"purchaser"`
-		Amount        uint   `db:"amount"`
-		Beneficiaries []User `db:"beneficiaries"`
+		id            int    `db:"id"`
+		description   string `db:"description"`
+		purchaser     int    `db:"purchaser"`
+		amount        int    `db:"amount"`
+		beneficiaries []User `db:"beneficiaries"`
 	}
 )
 
@@ -27,23 +27,23 @@ func createTransaction(c *gin.Context) {
 	// Retrieve POST values
 	description := c.PostForm("description")
 
-	amount, err := ConvertDollarsToCents(strconv.ParseFloat(c.PostForm("amount"), 32))
+	amount, err := ConvertDollarsStringToCents(c.PostForm("amount"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	purchaser, err := strconv.ParseUint(c.PostForm("purchaser"), 0, 32)
+	purchaser, err := strconv.ParseInt(c.PostForm("purchaser"), 10, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Build
-	transaction := transformedTransaction{
-		ID:            3,
-		Description:   description,
-		Purchaser:     uint(purchaser),
-		Amount:        uint(amount),
-		Beneficiaries: nil,
+	// Build up model
+	newTransaction := transformedTransaction{
+		id:            3,
+		description:   description,
+		purchaser:     purchaser,
+		amount:        amount,
+		beneficiaries: nil,
 	}
 
 	// Save
@@ -56,7 +56,11 @@ func createTransaction(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stmt.Exec(4, description, amount, purchaser)
+	stmt.Exec(
+		newTransaction.id,
+		newTransaction.description,
+		newTransaction.amount,
+		newTransaction.purchaser)
 	tx.Commit()
 
 	// Response
@@ -65,17 +69,17 @@ func createTransaction(c *gin.Context) {
 		gin.H{
 			"status":     http.StatusCreated,
 			"message":    "Transaction created successfully.",
-			"resourceId": transaction.ID,
+			"resourceId": newTransaction.id,
 		},
 	)
 }
 
 func listTransactions(c *gin.Context) {
 	var (
-		ID           uint
-		Description  string
-		Purchaser    uint
-		Amount       uint
+		id           int
+		description  string
+		purchaser    int
+		amount       int
 		responseData []transformedTransaction
 	)
 
@@ -90,11 +94,11 @@ func listTransactions(c *gin.Context) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&ID, &Description, &Purchaser, &Amount)
+		err := rows.Scan(&id, &description, &purchaser, &amount)
 		if err != nil {
 			log.Fatal(err)
 		}
-		responseData = append(responseData, transformedTransaction{ID, Description, Purchaser, Amount, nil})
+		responseData = append(responseData, transformedTransaction{id, description, purchaser, amount, nil})
 	}
 	err = rows.Err()
 	if err != nil {
