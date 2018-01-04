@@ -8,7 +8,7 @@ import (
 )
 
 type (
-	transaction struct {
+	Transaction struct {
 		Description string `db:"description"`
 		Purchaser   uint   `db:"purchaser"`
 		Amount      uint   `db:"amount"`
@@ -26,22 +26,27 @@ func createTransaction(c *gin.Context) {
 	// Retrieve POST values
 	description := c.PostForm("description")
 	amount, _ := ConvertDollarsToCents(strconv.ParseFloat(c.PostForm("amount"), 32))
-	beneficiaries := c.PostForm("beneficiaries")
+	purchaser := strconv.ParseUint(c.PostForm("purchaser"), 0, 32)
 
 	// Build
-	transaction := transaction{Description: description, Amount: amount, Beneficiaries: beneficiaries}
+	transaction := Transaction{Description: description, Purchaser: uint(purchaser), Amount: uint(amount)}
 
 	// Save
-	db.Save(&transaction)
+	// db.Save(&Transaction)
 
 	// Response
 	c.JSON(
 		http.StatusCreated,
-		gin.H{"status": http.StatusCreated, "message": "Transaction created successfully.", "resourceId": transaction.ID})
+		gin.H{
+			"status":     http.StatusCreated,
+			"message":    "Transaction created successfully.",
+			"resourceId": transaction.ID,
+		},
+	)
 }
 
 func listTransaction(c *gin.Context) {
-	var transactions []transaction
+	var transactions []Transaction
 	var _transactions []transformedTransaction
 
 	db.Find(&transactions)
@@ -54,7 +59,7 @@ func listTransaction(c *gin.Context) {
 	}
 
 	for _, item := range transactions {
-		_transactions = append(_transactions, transformedTransaction{ID: item.ID, Description: item.Description, Amount: item.Amount, Beneficiaries: item.Beneficiaries})
+		_transactions = append(_transactions, TransformedTransaction{ID: item.ID, Description: item.Description, Amount: item.Amount, Beneficiaries: item.Beneficiaries})
 	}
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _transactions})
 }
@@ -78,7 +83,7 @@ func listTransaction(c *gin.Context) {
 // 		completed = false
 // 	}
 
-// 	_transaction := transformedTransaction{ID: transaction.ID, Title: transaction.Title, Completed: completed}
+// 	_transaction := TransformedTransaction{ID: transaction.ID, Title: transaction.Title, Completed: completed}
 
 // 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _Transaction})
 // }
