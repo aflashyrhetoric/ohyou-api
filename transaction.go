@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	Transaction struct {
+	transaction struct {
 		Description string `db:"description"`
 		Purchaser   uint   `db:"purchaser"`
 		Amount      uint   `db:"amount"`
@@ -72,10 +72,11 @@ func createTransaction(c *gin.Context) {
 
 func listTransactions(c *gin.Context) {
 	var (
-		ID          uint
-		Description string
-		Purchaser   uint
-		Amount      uint
+		ID           uint
+		Description  string
+		Purchaser    uint
+		Amount       uint
+		responseData []transformedTransaction
 	)
 
 	// Save
@@ -93,12 +94,14 @@ func listTransactions(c *gin.Context) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println(Description)
+		responseData = append(responseData, transformedTransaction{ID, Description, Purchaser, Amount, nil})
 	}
 	err = rows.Err()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
 // func showTransaction(c *gin.Context) {

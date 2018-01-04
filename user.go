@@ -5,5 +5,5 @@ type User struct {
 	Email    string `db:"email"`
 	Password string `db:"password"`
 
-	Purchases []Transaction `gorm:"ForeignKey:Purchaser"`
+	Purchases []transaction `gorm:"ForeignKey:Purchaser"`
 }
