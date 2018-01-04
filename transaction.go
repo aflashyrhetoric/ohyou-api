@@ -39,7 +39,7 @@ func createTransaction(c *gin.Context) {
 
 	// Build
 	transaction := transformedTransaction{
-		ID:            1,
+		ID:            3,
 		Description:   description,
 		Purchaser:     uint(purchaser),
 		Amount:        uint(amount),
@@ -47,7 +47,17 @@ func createTransaction(c *gin.Context) {
 	}
 
 	// Save
-	// db.Save(&Transaction)
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stmt, err := tx.Prepare("INSERT INTO transactions VALUES(?, ?, ?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	stmt.Exec(4, description, amount, purchaser)
+	tx.Commit()
 
 	// Response
 	c.JSON(
@@ -60,24 +70,36 @@ func createTransaction(c *gin.Context) {
 	)
 }
 
-// func listTransaction(c *gin.Context) {
-// 	var transactions []Transaction
-// 	var _transactions []transformedTransaction
+func listTransactions(c *gin.Context) {
+	var (
+		ID          uint
+		Description string
+		Purchaser   uint
+		Amount      uint
+	)
 
-// 	db.Find(&transactions)
-
-// 	if len(transactions) <= 0 {
-// 		c.JSON(
-// 			http.StatusNotFound,
-// 			gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
-// 		return
-// 	}
-
-// 	for _, item := range transactions {
-// 		_transactions = append(_transactions, TransformedTransaction{ID: item.ID, Description: item.Description, Amount: item.Amount, Beneficiaries: item.Beneficiaries})
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _transactions})
-// }
+	// Save
+	stmt, err := db.Prepare("SELECT * FROM transactions")
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, err := stmt.Query()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&ID, &Description, &Purchaser, &Amount)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(Description)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 // func showTransaction(c *gin.Context) {
 // 	var transaction transaction
