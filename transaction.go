@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -25,11 +26,25 @@ type (
 func createTransaction(c *gin.Context) {
 	// Retrieve POST values
 	description := c.PostForm("description")
-	amount, _ := ConvertDollarsToCents(strconv.ParseFloat(c.PostForm("amount"), 32))
-	purchaser := strconv.ParseUint(c.PostForm("purchaser"), 0, 32)
+
+	amount, err := ConvertDollarsToCents(strconv.ParseFloat(c.PostForm("amount"), 32))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	purchaser, err := strconv.ParseUint(c.PostForm("purchaser"), 0, 32)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Build
-	transaction := Transaction{Description: description, Purchaser: uint(purchaser), Amount: uint(amount)}
+	transaction := transformedTransaction{
+		ID:            1,
+		Description:   description,
+		Purchaser:     uint(purchaser),
+		Amount:        uint(amount),
+		Beneficiaries: nil,
+	}
 
 	// Save
 	// db.Save(&Transaction)
@@ -45,24 +60,24 @@ func createTransaction(c *gin.Context) {
 	)
 }
 
-func listTransaction(c *gin.Context) {
-	var transactions []Transaction
-	var _transactions []transformedTransaction
+// func listTransaction(c *gin.Context) {
+// 	var transactions []Transaction
+// 	var _transactions []transformedTransaction
 
-	db.Find(&transactions)
+// 	db.Find(&transactions)
 
-	if len(transactions) <= 0 {
-		c.JSON(
-			http.StatusNotFound,
-			gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
-		return
-	}
+// 	if len(transactions) <= 0 {
+// 		c.JSON(
+// 			http.StatusNotFound,
+// 			gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
+// 		return
+// 	}
 
-	for _, item := range transactions {
-		_transactions = append(_transactions, TransformedTransaction{ID: item.ID, Description: item.Description, Amount: item.Amount, Beneficiaries: item.Beneficiaries})
-	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _transactions})
-}
+// 	for _, item := range transactions {
+// 		_transactions = append(_transactions, TransformedTransaction{ID: item.ID, Description: item.Description, Amount: item.Amount, Beneficiaries: item.Beneficiaries})
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _transactions})
+// }
 
 // func showTransaction(c *gin.Context) {
 // 	var transaction transaction

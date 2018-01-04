@@ -27,5 +27,9 @@ func ConvertDollarsToCents(price float64, err error) (int, error) {
 
 // ConvertCentsToDollars - Converts a integers currency to float64
 func ConvertCentsToDollars(price int, err error) (float64, error) {
-	return float64(price * .01), nil
+	if price < 100 {
+		return float64(price), nil
+	} else {
+		return float64(price / 10), nil
+	}
 }

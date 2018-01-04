@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 
+	_ "github.com/go-sql-driver/mysql"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +16,7 @@ func main() {
 	v1 := router.Group("/api/v1/transactions")
 	{
 		v1.POST("/", createTransaction)
-		v1.GET("/", listTransaction)
+		// v1.GET("/", listTransaction)
 		// v1.GET("/:id", showTransaction)
 		// v1.PUT("/:id", updateTransaction)
 		// v1.DELETE("/:id", deleteTransaction)
