@@ -10,16 +10,16 @@ import (
 
 type (
 	transaction struct {
-		description string `db:"description"`
-		purchaser   int    `db:"purchaser"`
-		amount      int    `db:"amount"`
+		description string
+		purchaser   int
+		amount      int
 	}
 	transformedTransaction struct {
-		id            int    `db:"id"`
-		description   string `db:"description"`
-		purchaser     int    `db:"purchaser"`
-		amount        int    `db:"amount"`
-		beneficiaries []User `db:"beneficiaries"`
+		ID            int    `json:"id"`
+		Description   string `json:"description"`
+		Purchaser     int    `json:"purchaser"`
+		Amount        int    `json:"amount"`
+		Beneficiaries []User `json:"beneficiaries"`
 	}
 )
 
@@ -39,11 +39,11 @@ func createTransaction(c *gin.Context) {
 
 	// Build up model
 	newTransaction := transformedTransaction{
-		id:            3,
-		description:   description,
-		purchaser:     purchaser,
-		amount:        amount,
-		beneficiaries: nil,
+		ID:            3,
+		Description:   description,
+		Purchaser:     int(purchaser),
+		Amount:        amount,
+		Beneficiaries: nil,
 	}
 
 	// Save
@@ -57,10 +57,10 @@ func createTransaction(c *gin.Context) {
 		log.Fatal(err)
 	}
 	stmt.Exec(
-		newTransaction.id,
-		newTransaction.description,
-		newTransaction.amount,
-		newTransaction.purchaser)
+		newTransaction.ID,
+		newTransaction.Description,
+		newTransaction.Amount,
+		newTransaction.Purchaser)
 	tx.Commit()
 
 	// Response
@@ -69,17 +69,17 @@ func createTransaction(c *gin.Context) {
 		gin.H{
 			"status":     http.StatusCreated,
 			"message":    "Transaction created successfully.",
-			"resourceId": newTransaction.id,
+			"resourceId": newTransaction.ID,
 		},
 	)
 }
 
 func listTransactions(c *gin.Context) {
 	var (
-		id           int
-		description  string
-		purchaser    int
-		amount       int
+		ID           int
+		Description  string
+		Purchaser    int
+		Amount       int
 		responseData []transformedTransaction
 	)
 
@@ -94,11 +94,11 @@ func listTransactions(c *gin.Context) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&id, &description, &purchaser, &amount)
+		err := rows.Scan(&ID, &Description, &Purchaser, &Amount)
 		if err != nil {
 			log.Fatal(err)
 		}
-		responseData = append(responseData, transformedTransaction{id, description, purchaser, amount, nil})
+		responseData = append(responseData, transformedTransaction{ID, Description, Purchaser, Amount, nil})
 	}
 	err = rows.Err()
 	if err != nil {
