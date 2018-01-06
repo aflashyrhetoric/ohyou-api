@@ -10,6 +10,7 @@ import (
 
 type (
 	transaction struct {
+		id          int
 		description string
 		purchaser   int
 		amount      int
@@ -77,16 +78,20 @@ func listTransactions(c *gin.Context) {
 		responseData []transformedTransaction
 	)
 
-	// Save
+	// Prepare SELECT statement
 	stmt, err := db.Prepare("SELECT * FROM transactions")
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Run Query
 	rows, err := stmt.Query()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
+
+	// Scan values to Go variables
 	for rows.Next() {
 		err := rows.Scan(&Description, &Purchaser, &Amount)
 		if err != nil {
@@ -102,29 +107,55 @@ func listTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-// func showTransaction(c *gin.Context) {
-// 	var transaction transaction
-// 	transactionID := c.Param("id")
+func showTransaction(c *gin.Context) {
+	var (
+		ID           int
+		Description  string
+		Purchaser    int
+		Amount       int
+		responseData transformedTransaction
+	)
+	transactionID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	db.First(&transaction, transactionID)
+	// Check for invalid ID
+	if transactionID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
+		return
+	}
 
-// 	if transaction.ID == 0 {
-// 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
-// 		return
-// 	}
+	// Prepare SELECT statement
+	stmt, err := db.Prepare("SELECT id, description, purchaser, amount FROM transactions WHERE id=?")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	completed := false
+	// Run Query
+	rows, err := stmt.Query(transactionID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
 
-// 	if transaction.Completed == 1 {
-// 		completed = true
-// 	} else {
-// 		completed = false
-// 	}
+	// Scan values to Go variables
+	for rows.Next() {
+		err := rows.Scan(&ID, &Description, &Purchaser, &Amount)
+		if err != nil {
+			log.Fatal(err)
+		}
+		responseData = transformedTransaction{Description, Purchaser, Amount, nil}
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	_transaction := TransformedTransaction{ID: transaction.ID, Title: transaction.Title, Completed: completed}
+	// _transaction := TransformedTransaction{ID: transaction.ID, Title: transaction.Title, Completed: completed}
 
-// 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": _Transaction})
-// }
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
+}
 
 // func updateTransaction(c *gin.Context) {
 // 	var transaction transaction

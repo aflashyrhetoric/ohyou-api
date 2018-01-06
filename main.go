@@ -27,7 +27,7 @@ func main() {
 	{
 		v1.GET("", listTransactions)
 		v1.POST("/", createTransaction)
-		// v1.GET("/:id", showTransaction)
+		v1.GET("/:id", showTransaction)
 		// v1.PUT("/:id", updateTransaction)
 		// v1.DELETE("/:id", deleteTransaction)
 	}
