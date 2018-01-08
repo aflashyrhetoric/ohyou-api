@@ -48,11 +48,11 @@ func createTransaction(c *gin.Context) {
 	description := getDescription(c)
 	purchaser, err := getPurchaser(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	amount, err := getAmount(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	// Build up model to be saved
 	newTransaction := transformedTransaction{
@@ -63,18 +63,18 @@ func createTransaction(c *gin.Context) {
 	// Save
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	stmt, err := tx.Prepare("INSERT INTO Transactions VALUES(NULL, ?, ?, ?)")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	res, err := stmt.Exec(
 		newTransaction.Description,
 		newTransaction.Amount,
 		newTransaction.Purchaser)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	tx.Commit()
 	// Response
@@ -99,25 +99,25 @@ func listTransactions(c *gin.Context) {
 	// Prepare SELECT statement
 	stmt, err := db.Prepare("SELECT * FROM Transactions")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	// Run Query
 	rows, err := stmt.Query()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer rows.Close()
 	// Scan values to Go variables
 	for rows.Next() {
 		err := rows.Scan(&ID, &Description, &Purchaser, &Amount)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		responseData = append(responseData, transformedTransaction{ID, Description, Purchaser, Amount, nil})
 	}
 	err = rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
@@ -133,7 +133,7 @@ func showTransaction(c *gin.Context) {
 	)
 	TransactionID, err := getID(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	// Check for invalid ID
 	if TransactionID == 0 {
@@ -143,19 +143,19 @@ func showTransaction(c *gin.Context) {
 	// Prepare SELECT statement
 	stmt, err := db.Prepare("SELECT id, description, purchaser, amount FROM Transactions WHERE id=?")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Run Query
 	row := stmt.QueryRow(TransactionID)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Scan values to Go variables
 	err = row.Scan(&ID, &Description, &Purchaser, &Amount)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	responseData = transformedTransaction{ID, Description, Purchaser, Amount, nil}
 
@@ -168,7 +168,7 @@ func updateTransaction(c *gin.Context) {
 	purchaser, err := getPurchaser(c)
 	amount, err := getAmount(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	// Check for invalid ID
 	if TransactionID == 0 {
@@ -183,13 +183,13 @@ func updateTransaction(c *gin.Context) {
 		WHERE id=?;
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Run Query
 	_, err = stmt.Exec(description, purchaser, amount, TransactionID)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	tx.Commit()
 
@@ -205,7 +205,7 @@ func updateTransaction(c *gin.Context) {
 func deleteTransaction(c *gin.Context) {
 	TransactionID, err := getID(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	// Check for invalid ID
 	if TransactionID == 0 {
@@ -219,13 +219,13 @@ func deleteTransaction(c *gin.Context) {
 		WHERE id=?
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Run Query
 	_, err = stmt.Exec(TransactionID)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	tx.Commit()
 
