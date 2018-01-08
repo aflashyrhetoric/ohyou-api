@@ -31,5 +31,7 @@ func main() {
 		v1.PUT("/:id", updateTransaction)
 		v1.DELETE("/:id", deleteTransaction)
 	}
+	router.GET("/api/v1/seed", SeedTransactions)
+
 	router.Run()
 }

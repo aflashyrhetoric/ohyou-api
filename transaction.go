@@ -10,12 +10,14 @@ import (
 )
 
 type (
-	transaction struct {
+	// Transaction ... is a single purchase
+	Transaction struct {
 		id          int
 		description string
 		purchaser   int
 		amount      int
 	}
+	// TransformedTransaction ... is a Transaction with additional information
 	transformedTransaction struct {
 		ID            int    `json:id`
 		Description   string `json:"description"`
@@ -63,7 +65,7 @@ func createTransaction(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stmt, err := tx.Prepare("INSERT INTO transactions VALUES(NULL, ?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO Transactions VALUES(NULL, ?, ?, ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,7 +97,7 @@ func listTransactions(c *gin.Context) {
 		responseData []transformedTransaction
 	)
 	// Prepare SELECT statement
-	stmt, err := db.Prepare("SELECT * FROM transactions")
+	stmt, err := db.Prepare("SELECT * FROM Transactions")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,23 +131,23 @@ func showTransaction(c *gin.Context) {
 		Amount       int
 		responseData transformedTransaction
 	)
-	transactionID, err := getID(c)
+	TransactionID, err := getID(c)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// Check for invalid ID
-	if transactionID == 0 {
+	if TransactionID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
 	// Prepare SELECT statement
-	stmt, err := db.Prepare("SELECT id, description, purchaser, amount FROM transactions WHERE id=?")
+	stmt, err := db.Prepare("SELECT id, description, purchaser, amount FROM Transactions WHERE id=?")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Run Query
-	row := stmt.QueryRow(transactionID)
+	row := stmt.QueryRow(TransactionID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -161,7 +163,7 @@ func showTransaction(c *gin.Context) {
 }
 
 func updateTransaction(c *gin.Context) {
-	transactionID, err := getID(c)
+	TransactionID, err := getID(c)
 	description := getDescription(c)
 	purchaser, err := getPurchaser(c)
 	amount, err := getAmount(c)
@@ -169,14 +171,14 @@ func updateTransaction(c *gin.Context) {
 		log.Fatal(err)
 	}
 	// Check for invalid ID
-	if transactionID == 0 {
+	if TransactionID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
 	// Prepare SELECT statement
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
-		UPDATE transactions 
+		UPDATE Transactions 
 		SET description=?, purchaser=?, amount=?
 		WHERE id=?;
 	`)
@@ -185,7 +187,7 @@ func updateTransaction(c *gin.Context) {
 	}
 
 	// Run Query
-	_, err = stmt.Exec(description, purchaser, amount, transactionID)
+	_, err = stmt.Exec(description, purchaser, amount, TransactionID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -201,19 +203,19 @@ func updateTransaction(c *gin.Context) {
 }
 
 func deleteTransaction(c *gin.Context) {
-	transactionID, err := getID(c)
+	TransactionID, err := getID(c)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// Check for invalid ID
-	if transactionID == 0 {
+	if TransactionID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
 	// Prepare SELECT statement
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
-		DELETE FROM transactions
+		DELETE FROM Transactions
 		WHERE id=?
 	`)
 	if err != nil {
@@ -221,13 +223,13 @@ func deleteTransaction(c *gin.Context) {
 	}
 
 	// Run Query
-	_, err = stmt.Exec(transactionID)
+	_, err = stmt.Exec(TransactionID)
 	if err != nil {
 		log.Fatal(err)
 	}
 	tx.Commit()
 
-	responseMsg := fmt.Sprintf("Transaction %v deleted successfully", transactionID)
+	responseMsg := fmt.Sprintf("Transaction %v deleted successfully", TransactionID)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
