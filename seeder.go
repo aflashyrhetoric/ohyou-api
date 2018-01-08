@@ -20,7 +20,7 @@ func SeedTransactions(c *gin.Context) {
 	for i := 0; i < numberOfRecords; i++ {
 		description := k.LoremWord()
 		purchaser := rand.Intn(groupCount) + 1
-		amount := rand.Intn(groupCount) + 1
+		amount := rand.Intn(8000) + 100
 		// Build up model to be saved
 		newTransaction := Transaction{
 			description: description,
