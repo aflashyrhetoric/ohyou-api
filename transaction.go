@@ -65,7 +65,7 @@ func createTransaction(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	stmt, err := tx.Prepare("INSERT INTO Transactions VALUES(NULL, ?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO transactions VALUES(NULL, ?, ?, ?)")
 	if err != nil {
 		log.Println(err)
 	}
@@ -97,7 +97,7 @@ func listTransactions(c *gin.Context) {
 		responseData []transformedTransaction
 	)
 	// Prepare SELECT statement
-	stmt, err := db.Prepare("SELECT * FROM Transactions")
+	stmt, err := db.Prepare("SELECT * FROM transactions")
 	if err != nil {
 		log.Println(err)
 	}
@@ -141,7 +141,7 @@ func showTransaction(c *gin.Context) {
 		return
 	}
 	// Prepare SELECT statement
-	stmt, err := db.Prepare("SELECT id, description, purchaser, amount FROM Transactions WHERE id=?")
+	stmt, err := db.Prepare("SELECT id, description, purchaser, amount FROM transactions WHERE id=?")
 	if err != nil {
 		log.Println(err)
 	}
@@ -178,7 +178,7 @@ func updateTransaction(c *gin.Context) {
 	// Prepare SELECT statement
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
-		UPDATE Transactions 
+		UPDATE transactions 
 		SET description=?, purchaser=?, amount=?
 		WHERE id=?;
 	`)
@@ -215,7 +215,7 @@ func deleteTransaction(c *gin.Context) {
 	// Prepare SELECT statement
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
-		DELETE FROM Transactions
+		DELETE FROM transactions
 		WHERE id=?
 	`)
 	if err != nil {
