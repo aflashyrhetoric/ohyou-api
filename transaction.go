@@ -25,6 +25,26 @@ type (
 	}
 )
 
+func getBeneficiaries(c *gin.Context) []User {
+	u := User{}
+	u.Name = "bob"
+	u.Email = "aflashyrhetoric@gmail.com"
+	u.Password = "password"
+
+	var beneficiaries []User
+
+	beneficiaries = append(beneficiaries, u)
+	beneficiaries = append(beneficiaries, u)
+	beneficiaries = append(beneficiaries, u)
+	beneficiaries = append(beneficiaries, u)
+
+	return beneficiaries
+}
+
+func getID(c *gin.Context) (int, error) {
+	return strconv.Atoi(c.Param("id"))
+}
+
 func getDescription(c *gin.Context) string {
 	return c.PostForm("description")
 }
@@ -35,10 +55,6 @@ func getPurchaser(c *gin.Context) (int64, error) {
 
 func getAmount(c *gin.Context) (int, error) {
 	return ConvertDollarsStringToCents(c.PostForm("amount"))
-}
-
-func getID(c *gin.Context) (int, error) {
-	return strconv.Atoi(c.Param("id"))
 }
 
 func createTransaction(c *gin.Context) {
@@ -97,8 +113,8 @@ func createTransaction(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stmt, err := tx.Prepare("INSERT INTO transactions_beneficiaries VALUES(NULL, ?, ?)")
-	res, err := stmt.Exec(
+	stmt, err = tx.Prepare("INSERT INTO transactions_beneficiaries VALUES(NULL, ?, ?)")
+	res, err = stmt.Exec(
 		newTransaction.Description,
 		newTransaction.Amount,
 		newTransaction.Purchaser)
