@@ -42,6 +42,9 @@ func getID(c *gin.Context) (int, error) {
 }
 
 func createTransaction(c *gin.Context) {
+
+	// Initial transaction
+
 	// Retrieve POST values
 	description := getDescription(c)
 	purchaser, err := getPurchaser(c)
@@ -58,7 +61,11 @@ func createTransaction(c *gin.Context) {
 		Purchaser:   int(purchaser),
 		Amount:      amount,
 	}
-	// Save
+
+	// The ID of the transaction AFTER it is saved to the transactions table
+	var newTransactionID int64
+
+	// Save initial transaction
 	tx, err := db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -73,8 +80,33 @@ func createTransaction(c *gin.Context) {
 		newTransaction.Purchaser)
 	if err != nil {
 		log.Fatal(err)
+	} else {
+		newTransactionID, err = res.LastInsertId()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	tx.Commit()
+
+	// Save beneficiaries data
+
+	// Re-assign tx and err variables from earlier
+
+	// TODO: setup a loop for each beneficiary, run a new transaction to save to the database
+	tx, err = db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	stmt, err := tx.Prepare("INSERT INTO transactions_beneficiaries VALUES(NULL, ?, ?)")
+	res, err := stmt.Exec(
+		newTransaction.Description,
+		newTransaction.Amount,
+		newTransaction.Purchaser)
+	if err != nil {
+		log.Fatal(err)
+	}
+	tx.Commit()
+
 	// Response
 	c.JSON(
 		http.StatusCreated,
