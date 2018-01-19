@@ -26,17 +26,21 @@ type (
 )
 
 func getBeneficiaries(c *gin.Context) []User {
-	u := User{}
-	u.Name = "bob"
-	u.Email = "aflashyrhetoric@gmail.com"
-	u.Password = "password"
+
+	rawBeneficiaryIDs := c.PostForm("beneficiaries")
+	fmt.Print(rawBeneficiaryIDs)
+	// u := User{}
+	// u.Name = "bob"
+	// u.Email = "aflashyrhetoric@gmail.com"
+	// u.Password = "password"
 
 	var beneficiaries []User
+	beneficiaries = nil
 
-	beneficiaries = append(beneficiaries, u)
-	beneficiaries = append(beneficiaries, u)
-	beneficiaries = append(beneficiaries, u)
-	beneficiaries = append(beneficiaries, u)
+	// beneficiaries = append(beneficiaries, u)
+	// beneficiaries = append(beneficiaries, u)
+	// beneficiaries = append(beneficiaries, u)
+	// beneficiaries = append(beneficiaries, u)
 
 	return beneficiaries
 }
@@ -71,6 +75,7 @@ func createTransaction(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// beneficiaries := getBeneficiaries(c)
 	// Build up model to be saved
 	newTransaction := transformedTransaction{
 		Description: description,
@@ -79,14 +84,17 @@ func createTransaction(c *gin.Context) {
 	}
 
 	// The ID of the transaction AFTER it is saved to the transactions table
-	var newTransactionID int64
+	// var newTransactionID int64
 
 	// Save initial transaction
 	tx, err := db.Begin()
 	if err != nil {
 		log.Fatal(err)
 	}
-	stmt, err := tx.Prepare("INSERT INTO transactions VALUES(NULL, ?, ?, ?)")
+	stmt, err := tx.Prepare(`
+		INSERT INTO transactions 
+		VALUES(NULL, ?, ?, ?)
+	`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -96,12 +104,13 @@ func createTransaction(c *gin.Context) {
 		newTransaction.Purchaser)
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		newTransactionID, err = res.LastInsertId()
-		if err != nil {
-			log.Fatal(err)
-		}
 	}
+	// else {
+	// 	newTransactionID, err = res.LastInsertId()
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }
 	tx.Commit()
 
 	// Save beneficiaries data
@@ -113,7 +122,10 @@ func createTransaction(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stmt, err = tx.Prepare("INSERT INTO transactions_beneficiaries VALUES(NULL, ?, ?)")
+	stmt, err = tx.Prepare(`
+		INSERT INTO transactions_beneficiaries 
+		VALUES(NULL, ?, ?) 
+	`)
 	res, err = stmt.Exec(
 		newTransaction.Description,
 		newTransaction.Amount,
