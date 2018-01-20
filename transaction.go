@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -59,18 +60,18 @@ func loadTransactionBeneficiaryData(transactionID int) []int {
 		WHERE transaction_id = ?
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	rows, err := stmt.Query(transactionID)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	defer rows.Close()
 	// Scan values to Go variables
 	for rows.Next() {
 		err := rows.Scan(&transactionID, beneficiaryIDs)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 		beneficiaryIDs = append(beneficiaryIDs)
 	}
@@ -101,11 +102,11 @@ func createTransaction(c *gin.Context) {
 	description := getDescription(c)
 	purchaser, err := getPurchaser(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	amount, err := getAmount(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	beneficiaries := getBeneficiaries(c)
 
@@ -119,25 +120,25 @@ func createTransaction(c *gin.Context) {
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	stmt, err := tx.Prepare(`
 		INSERT INTO transactions 
 		VALUES(NULL, ?, ?, ?)
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	res, err := stmt.Exec(
 		newTransaction.Description,
 		newTransaction.Amount,
 		newTransaction.Purchaser)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	lastInsertID, err := res.LastInsertId()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	tx.Commit()
 
@@ -147,7 +148,7 @@ func createTransaction(c *gin.Context) {
 	for _, beneficiaryID := range newTransaction.Beneficiaries {
 		tx, err = db.Begin()
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 		stmt, err = tx.Prepare(`
 			INSERT INTO transactions_beneficiaries 
@@ -157,7 +158,7 @@ func createTransaction(c *gin.Context) {
 			lastInsertID,
 			beneficiaryID)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 		tx.Commit()
 	}
@@ -186,12 +187,12 @@ func listTransactions(c *gin.Context) {
 	// Prepare SELECT statement
 	stmt, err := db.Prepare("SELECT * FROM transactions")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	// Run Query
 	rows, err := stmt.Query()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	defer rows.Close()
@@ -199,7 +200,7 @@ func listTransactions(c *gin.Context) {
 	for rows.Next() {
 		err := rows.Scan(&ID, &Description, &Purchaser, &Amount)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 
 		// Run second query to retrieve transactions_beneficiaries data
@@ -209,19 +210,19 @@ func listTransactions(c *gin.Context) {
 			WHERE transaction_id = ?
 		`)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 		// Run Query
 		benRows, err := stmt.Query(ID)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 		defer benRows.Close()
 		// Scan values to Go variables
 		for benRows.Next() {
 			err := benRows.Scan(&BeneficiaryID)
 			if err != nil {
-				log.Fatal(err)
+				log.Print(err)
 			}
 			Beneficiaries = append(Beneficiaries, BeneficiaryID)
 		}
@@ -230,7 +231,7 @@ func listTransactions(c *gin.Context) {
 	}
 	err = rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
@@ -248,7 +249,7 @@ func showTransaction(c *gin.Context) {
 	)
 	transactionID, err := getID(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	// Check for invalid ID
 	if transactionID == 0 {
@@ -262,19 +263,27 @@ func showTransaction(c *gin.Context) {
 		WHERE id=?
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	// Run Query
 	row := stmt.QueryRow(transactionID)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	// Scan values to Go variables
 	err = row.Scan(&ID, &Description, &Purchaser, &Amount)
-	if err != nil {
-		log.Fatal(err)
+	if err == sql.ErrNoRows {
+		c.JSON(
+			http.StatusNotFound,
+			gin.H{
+				"status":  http.StatusNotFound,
+				"message": "Record not found",
+			})
+		return
+	} else if err != nil {
+		log.Print(err)
 	}
 
 	// Retrieve transactions_beneficiaries data
@@ -284,19 +293,19 @@ func showTransaction(c *gin.Context) {
 		WHERE transaction_id = ?
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	// Run Query
 	benRows, err := stmt.Query(ID)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	defer benRows.Close()
 	// Scan values to Go variables
 	for benRows.Next() {
 		err := benRows.Scan(&BeneficiaryID)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 		Beneficiaries = append(Beneficiaries, BeneficiaryID)
 	}
@@ -332,13 +341,13 @@ func updateTransaction(c *gin.Context) {
 		WHERE id=?;
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	// Execute update query for regular transaction data
 	_, err = stmt.Exec(description, purchaser, amount, transactionID)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	tx.Commit()
 
@@ -352,12 +361,12 @@ func updateTransaction(c *gin.Context) {
 		WHERE transaction_id=?;
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	// Execute update query for beneficiaries
 	_, err = stmt.Exec(transactionID)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	tx.Commit()
 
@@ -369,13 +378,13 @@ func updateTransaction(c *gin.Context) {
 			VALUES (?, ?);
 		`)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 
 		// Execute update query for beneficiaries
 		_, err = stmt.Exec(transactionID, beneficiaryID)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 		tx.Commit()
 	}
@@ -392,7 +401,7 @@ func updateTransaction(c *gin.Context) {
 func deleteTransaction(c *gin.Context) {
 	transactionID, err := getID(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	// Check for invalid ID
 	if transactionID == 0 {
@@ -406,13 +415,13 @@ func deleteTransaction(c *gin.Context) {
 		WHERE id=?
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	// Run Query
 	_, err = stmt.Exec(transactionID)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	tx.Commit()
 
