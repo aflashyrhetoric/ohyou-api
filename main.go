@@ -32,6 +32,5 @@ func main() {
 		v1.DELETE("/:id", deleteTransaction)
 	}
 	router.GET("/api/v1/seed", SeedTransactions)
-
 	router.Run()
 }
