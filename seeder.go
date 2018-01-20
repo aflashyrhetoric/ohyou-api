@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,19 +9,21 @@ import (
 func seedTransactions(c *gin.Context) {
 	// Retrieve POST values
 	description := c.PostForm("description")
-	purchaser, err := strconv.ParseInt(c.PostForm("purchaser"), 10, 0)
+	purchaser, err := getPurchaser(c)
 	if err != nil {
 		log.Fatal(err)
 	}
-	amount, err := ConvertDollarsStringToCents(c.PostForm("amount"))
+	amount, err := getAmount(c)
 	if err != nil {
 		log.Fatal(err)
 	}
+	beneficiaries := loadTransactionBeneficiaryData()
 	// Build up model to be saved
 	newTransaction := transformedTransaction{
-		Description: description,
-		Purchaser:   int(purchaser),
-		Amount:      amount,
+		Description:   description,
+		Purchaser:     purchaser,
+		Amount:        amount,
+		Beneficiaries: beneficiaries,
 	}
 	// Save
 	tx, err := db.Begin()
@@ -36,7 +37,8 @@ func seedTransactions(c *gin.Context) {
 	stmt.Exec(
 		newTransaction.Description,
 		newTransaction.Amount,
-		newTransaction.Purchaser)
+		newTransaction.Purchaser,
+		newTransaction.Beneficiaries)
 	tx.Commit()
 
 }

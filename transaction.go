@@ -43,6 +43,35 @@ func getBeneficiaries(c *gin.Context) []int {
 	return beneficiaries
 }
 
+func loadTransactionBeneficiaryData(transactionID int) []int {
+	var (
+		beneficiaryIDs []int
+	)
+	stmt, err := db.Prepare(`
+		SELECT * FROM transactions 
+		WHERE transaction_id = ?
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, err := stmt.Query(transactionID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	// Scan values to Go variables
+	for rows.Next() {
+		err := rows.Scan(&transactionID, beneficiaryIDs)
+		if err != nil {
+			log.Fatal(err)
+		}
+		beneficiaryIDs = append(beneficiaryIDs)
+	}
+
+	stmt.Commit()
+
+}
+
 func getID(c *gin.Context) (int, error) {
 	return strconv.Atoi(c.Param("id"))
 }
