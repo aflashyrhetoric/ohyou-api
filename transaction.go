@@ -18,7 +18,7 @@ type (
 		amount      int
 	}
 	transformedTransaction struct {
-		ID            int    `json:id`
+		ID            int    `json:"id"`
 		Description   string `json:"description"`
 		Purchaser     int    `json:"purchaser"`
 		Amount        int    `json:"amount"`
@@ -51,8 +51,8 @@ func getDescription(c *gin.Context) string {
 	return c.PostForm("description")
 }
 
-func getPurchaser(c *gin.Context) (int64, error) {
-	return strconv.ParseInt(c.PostForm("purchaser"), 10, 0)
+func getPurchaser(c *gin.Context) (int, error) {
+	return strconv.Atoi(c.PostForm("purchaser"))
 }
 
 func getAmount(c *gin.Context) (int, error) {
@@ -74,6 +74,7 @@ func createTransaction(c *gin.Context) {
 		log.Fatal(err)
 	}
 	beneficiaries := getBeneficiaries(c)
+
 	// Build up model to be saved
 	newTransaction := transformedTransaction{
 		Description:   description,
@@ -82,10 +83,6 @@ func createTransaction(c *gin.Context) {
 		Beneficiaries: beneficiaries,
 	}
 
-	// The ID of the transaction AFTER it is saved to the transactions table
-	// var newTransactionID int64
-
-	// Save initial transaction
 	tx, err := db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -104,17 +101,13 @@ func createTransaction(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// else {
-	// 	newTransactionID, err = res.LastInsertId()
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
+	lastInsertID, err := res.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
 	tx.Commit()
 
 	// Save beneficiaries data
-
-	// Re-assign tx and err variables from earlier
 
 	// Save a transaction (to the junction table) for each beneficiary
 	for _, beneficiaryID := range newTransaction.Beneficiaries {
@@ -124,10 +117,10 @@ func createTransaction(c *gin.Context) {
 		}
 		stmt, err = tx.Prepare(`
 			INSERT INTO transactions_beneficiaries 
-			VALUES(NULL, ?, ?) 
+			VALUES(?, ?) 
 		`)
-		res, err = stmt.Exec(
-			newTransaction.Purchaser,
+		stmt.Exec(
+			lastInsertID,
 			beneficiaryID)
 		if err != nil {
 			log.Fatal(err)
@@ -141,7 +134,7 @@ func createTransaction(c *gin.Context) {
 		gin.H{
 			"status":  http.StatusCreated,
 			"message": "Transaction created successfully.",
-			"data":    res.LastInsertId,
+			"data":    lastInsertID,
 		},
 	)
 }
