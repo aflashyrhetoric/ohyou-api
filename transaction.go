@@ -12,12 +12,14 @@ import (
 )
 
 type (
-	transaction struct {
+	// Transaction ... is a single purchase
+	Transaction struct {
 		id          int
 		description string
 		purchaser   int
 		amount      int
 	}
+	// TransformedTransaction ... is a Transaction with additional information
 	transformedTransaction struct {
 		ID            int    `json:"id"`
 		Description   string `json:"description"`
@@ -247,12 +249,12 @@ func showTransaction(c *gin.Context) {
 		Beneficiaries []int
 		responseData  transformedTransaction
 	)
-	transactionID, err := getID(c)
+	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)
 	}
 	// Check for invalid ID
-	if transactionID == 0 {
+	if TransactionID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
@@ -267,7 +269,7 @@ func showTransaction(c *gin.Context) {
 	}
 
 	// Run Query
-	row := stmt.QueryRow(transactionID)
+	row := stmt.QueryRow(TransactionID)
 	if err != nil {
 		log.Print(err)
 	}
@@ -399,12 +401,12 @@ func updateTransaction(c *gin.Context) {
 }
 
 func deleteTransaction(c *gin.Context) {
-	transactionID, err := getID(c)
+	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)
 	}
 	// Check for invalid ID
-	if transactionID == 0 {
+	if TransactionID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
 		return
 	}
@@ -436,13 +438,13 @@ func deleteTransaction(c *gin.Context) {
 	}
 
 	// Run Query
-	_, err = stmt.Exec(transactionID)
+	_, err = stmt.Exec(TransactionID)
 	if err != nil {
 		log.Print(err)
 	}
 	tx.Commit()
 
-	responseMsg := fmt.Sprintf("Transaction %v deleted successfully", transactionID)
+	responseMsg := fmt.Sprintf("Transaction %v deleted successfully", TransactionID)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,

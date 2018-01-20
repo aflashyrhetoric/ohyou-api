@@ -2,14 +2,14 @@ package main
 
 import (
 	"log"
+
 	"math/rand"
 
 	"github.com/gin-gonic/gin"
 	"github.com/malisit/kolpa"
 )
 
-// SeedTransactions
-// 4
+// Generates a random []int representing beneficiary IDs
 func generateRandomBeneficiaries(maxNum int) []int {
 	var randomBeneficiariesArr []int
 
