@@ -307,16 +307,21 @@ func showTransaction(c *gin.Context) {
 }
 
 func updateTransaction(c *gin.Context) {
-	transactionID, err := getID(c)
+
+	// Retrieve POST update data
+	transactionID, _ := getID(c)
 	description := getDescription(c)
-	purchaser, err := getPurchaser(c)
-	amount, err := getAmount(c)
-	if err != nil {
-		log.Fatal(err)
-	}
+	purchaser, _ := getPurchaser(c)
+	amount, _ := getAmount(c)
+
 	// Check for invalid ID
 	if transactionID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
+		c.JSON(
+			http.StatusNotFound,
+			gin.H{
+				"status":  http.StatusNotFound,
+				"message": "No Transaction found!",
+			})
 		return
 	}
 	// Prepare SELECT statement
@@ -330,12 +335,50 @@ func updateTransaction(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	// Run Query
+	// Execute update query for regular transaction data
 	_, err = stmt.Exec(description, purchaser, amount, transactionID)
 	if err != nil {
 		log.Fatal(err)
 	}
 	tx.Commit()
+
+	// Update transactions_beneficiaries data
+	beneficiaries := getBeneficiaries(c)
+
+	// First, delete all old associated beneficiaries
+	tx, err = db.Begin()
+	stmt, err = tx.Prepare(`
+		DELETE FROM transactions_beneficiaries 
+		WHERE transaction_id=?;
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Execute update query for beneficiaries
+	_, err = stmt.Exec(transactionID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	tx.Commit()
+
+	// Second, insert new values
+	for _, beneficiaryID := range beneficiaries {
+		tx, err = db.Begin()
+		stmt, err = tx.Prepare(`
+			INSERT INTO transactions_beneficiaries 
+			VALUES (?, ?);
+		`)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Execute update query for beneficiaries
+		_, err = stmt.Exec(transactionID, beneficiaryID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tx.Commit()
+	}
 
 	c.JSON(
 		http.StatusOK,
