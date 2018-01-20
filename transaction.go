@@ -425,6 +425,23 @@ func deleteTransaction(c *gin.Context) {
 	}
 	tx.Commit()
 
+	// Delete beneficiary data
+	tx, err = db.Begin()
+	stmt, err = tx.Prepare(`
+		DELETE FROM transactions_beneficiaries
+		WHERE transaction_id=?
+	`)
+	if err != nil {
+		log.Print(err)
+	}
+
+	// Run Query
+	_, err = stmt.Exec(transactionID)
+	if err != nil {
+		log.Print(err)
+	}
+	tx.Commit()
+
 	responseMsg := fmt.Sprintf("Transaction %v deleted successfully", transactionID)
 
 	c.JSON(http.StatusOK, gin.H{
