@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,26 +22,23 @@ type (
 		Description   string `json:"description"`
 		Purchaser     int    `json:"purchaser"`
 		Amount        int    `json:"amount"`
-		Beneficiaries []User `json:"beneficiaries"`
+		Beneficiaries []int  `json:"beneficiaries"`
 	}
 )
 
-func getBeneficiaries(c *gin.Context) []User {
+func getBeneficiaries(c *gin.Context) []int {
 
 	rawBeneficiaryIDs := c.PostForm("beneficiaries")
-	fmt.Print(rawBeneficiaryIDs)
-	// u := User{}
-	// u.Name = "bob"
-	// u.Email = "aflashyrhetoric@gmail.com"
-	// u.Password = "password"
+	beneficiaryStringIDs := strings.Split(rawBeneficiaryIDs, ",")
+	var beneficiaries []int
 
-	var beneficiaries []User
-	beneficiaries = nil
-
-	// beneficiaries = append(beneficiaries, u)
-	// beneficiaries = append(beneficiaries, u)
-	// beneficiaries = append(beneficiaries, u)
-	// beneficiaries = append(beneficiaries, u)
+	for _, element := range beneficiaryStringIDs {
+		stringIDConvertedToInteger, err := strconv.Atoi(element)
+		if err != nil {
+			log.Print(err)
+		}
+		beneficiaries = append(beneficiaries, stringIDConvertedToInteger)
+	}
 
 	return beneficiaries
 }
@@ -75,12 +73,13 @@ func createTransaction(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// beneficiaries := getBeneficiaries(c)
+	beneficiaries := getBeneficiaries(c)
 	// Build up model to be saved
 	newTransaction := transformedTransaction{
-		Description: description,
-		Purchaser:   int(purchaser),
-		Amount:      amount,
+		Description:   description,
+		Purchaser:     int(purchaser),
+		Amount:        amount,
+		Beneficiaries: beneficiaries,
 	}
 
 	// The ID of the transaction AFTER it is saved to the transactions table
@@ -117,23 +116,24 @@ func createTransaction(c *gin.Context) {
 
 	// Re-assign tx and err variables from earlier
 
-	// TODO: setup a loop for each beneficiary, run a new transaction to save to the database
-	tx, err = db.Begin()
-	if err != nil {
-		log.Fatal(err)
+	// Save a transaction (to the junction table) for each beneficiary
+	for _, beneficiaryID := range newTransaction.Beneficiaries {
+		tx, err = db.Begin()
+		if err != nil {
+			log.Fatal(err)
+		}
+		stmt, err = tx.Prepare(`
+			INSERT INTO transactions_beneficiaries 
+			VALUES(NULL, ?, ?) 
+		`)
+		res, err = stmt.Exec(
+			newTransaction.Purchaser,
+			beneficiaryID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tx.Commit()
 	}
-	stmt, err = tx.Prepare(`
-		INSERT INTO transactions_beneficiaries 
-		VALUES(NULL, ?, ?) 
-	`)
-	res, err = stmt.Exec(
-		newTransaction.Description,
-		newTransaction.Amount,
-		newTransaction.Purchaser)
-	if err != nil {
-		log.Fatal(err)
-	}
-	tx.Commit()
 
 	// Response
 	c.JSON(
