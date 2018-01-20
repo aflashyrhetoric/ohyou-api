@@ -175,11 +175,13 @@ func createTransaction(c *gin.Context) {
 
 func listTransactions(c *gin.Context) {
 	var (
-		ID           int
-		Description  string
-		Purchaser    int
-		Amount       int
-		responseData []transformedTransaction
+		ID            int
+		Description   string
+		Purchaser     int
+		Amount        int
+		BeneficiaryID int
+		Beneficiaries []int
+		responseData  []transformedTransaction
 	)
 	// Prepare SELECT statement
 	stmt, err := db.Prepare("SELECT * FROM transactions")
@@ -191,6 +193,7 @@ func listTransactions(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer rows.Close()
 	// Scan values to Go variables
 	for rows.Next() {
@@ -198,7 +201,32 @@ func listTransactions(c *gin.Context) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		responseData = append(responseData, transformedTransaction{ID, Description, Purchaser, Amount, nil})
+
+		// Run second query to retrieve transactions_beneficiaries data
+		stmt, err = db.Prepare(`
+			SELECT beneficiary_id 
+			FROM transactions_beneficiaries 
+			WHERE transaction_id = ?
+		`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// Run Query
+		benRows, err := stmt.Query(ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer benRows.Close()
+		// Scan values to Go variables
+		for benRows.Next() {
+			err := benRows.Scan(&BeneficiaryID)
+			if err != nil {
+				log.Fatal(err)
+			}
+			Beneficiaries = append(Beneficiaries, BeneficiaryID)
+		}
+
+		responseData = append(responseData, transformedTransaction{ID, Description, Purchaser, Amount, Beneficiaries})
 	}
 	err = rows.Err()
 	if err != nil {
