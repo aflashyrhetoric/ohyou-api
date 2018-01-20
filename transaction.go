@@ -26,12 +26,18 @@ type (
 	}
 )
 
+// Get beneficiaries from POST variable
 func getBeneficiaries(c *gin.Context) []int {
 
+	// String IDs
 	rawBeneficiaryIDs := c.PostForm("beneficiaries")
+
+	// Array of string IDs
 	beneficiaryStringIDs := strings.Split(rawBeneficiaryIDs, ",")
+
 	var beneficiaries []int
 
+	// Convert array of String to array of Int
 	for _, element := range beneficiaryStringIDs {
 		stringIDConvertedToInteger, err := strconv.Atoi(element)
 		if err != nil {
@@ -43,6 +49,7 @@ func getBeneficiaries(c *gin.Context) []int {
 	return beneficiaries
 }
 
+// Load beneficiaries from database
 func loadTransactionBeneficiaryData(transactionID int) []int {
 	var (
 		beneficiaryIDs []int
@@ -67,9 +74,7 @@ func loadTransactionBeneficiaryData(transactionID int) []int {
 		}
 		beneficiaryIDs = append(beneficiaryIDs)
 	}
-
-	stmt.Commit()
-
+	return beneficiaryIDs
 }
 
 func getID(c *gin.Context) (int, error) {
