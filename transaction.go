@@ -421,7 +421,7 @@ func deleteTransaction(c *gin.Context) {
 	}
 
 	// Run Query
-	_, err = stmt.Exec(transactionID)
+	_, err = stmt.Exec(TransactionID)
 	if err != nil {
 		log.Print(err)
 	}
