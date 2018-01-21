@@ -1,37 +1,29 @@
 package main
 
 import (
+	"database/sql"
 	"log"
-
 	"math/rand"
 
-	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+
+	au "github.com/aflashyrhetoric/adelie-utils"
 	"github.com/malisit/kolpa"
 )
 
-// Generates a random []int representing beneficiary IDs
-func generateRandomBeneficiaries(maxNum int) []int {
-	var randomBeneficiariesArr []int
-
-	// Gens a random # in how MANY beneficiaries there are
-	randomLoopCount := rand.Intn(maxNum) + 1
-
-	// Ensure that randomBeneficiariesArr isn't empty
-	for len(randomBeneficiariesArr) == 0 {
-		for i := 0; i < randomLoopCount; i++ {
-			randomBeneficiaryID := rand.Intn(maxNum)
-			// If randomly generated beneficiary array doesn't already contain the ID, add it
-			if !ArrayContainsInt(randomBeneficiaryID, randomBeneficiariesArr) {
-				randomBeneficiariesArr = append(randomBeneficiariesArr, randomBeneficiaryID)
-			}
-		}
-	}
-
-	return randomBeneficiariesArr
-}
+var db *sql.DB
 
 // SeedTransactions ... Seeds database with sample data.
-func SeedTransactions(c *gin.Context) {
+func main() {
+
+	// Connect to database
+	var err error
+	db, err = sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	k := kolpa.C()
 
 	numberOfRecords := 25
@@ -87,4 +79,25 @@ func SeedTransactions(c *gin.Context) {
 			tx.Commit()
 		}
 	}
+}
+
+// Generates a random []int representing beneficiary IDs
+func generateRandomBeneficiaries(maxNum int) []int {
+	var randomBeneficiariesArr []int
+
+	// Gens a random # in how MANY beneficiaries there are
+	randomLoopCount := rand.Intn(maxNum) + 1
+
+	// Ensure that randomBeneficiariesArr isn't empty
+	for len(randomBeneficiariesArr) == 0 {
+		for i := 0; i < randomLoopCount; i++ {
+			randomBeneficiaryID := rand.Intn(maxNum)
+			// If randomly generated beneficiary array doesn't already contain the ID, add it
+			if !au.ArrayContainsInt(randomBeneficiaryID, randomBeneficiariesArr) {
+				randomBeneficiariesArr = append(randomBeneficiariesArr, randomBeneficiaryID)
+			}
+		}
+	}
+
+	return randomBeneficiariesArr
 }

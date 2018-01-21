@@ -15,49 +15,22 @@ git@gitlab.com:aflashyrhetoric/ohyou-api.git
 go get
 ```
 
-#### Ensure MySQL settings are as follows:
-
-|||
-|---|---|
-|version|`mysql  Ver 15.1`|
-|database name|`ohyou_api`|
-|host|`localhost` (or `tcp(localhost)`)|
-|user|`root`|
-|password|`password`|
+# Requirements
+- MySQL 15.1 
+- Go 1.9.1
 
 <sup>If you haven't done so already and it is safe, run `mysql_secure_installation` to get an interactive prompt where you'll be able to set the `root` user and password. </sup>
 
-#### Connect to MySQL.
-
-<!-- TODO: Create bash script for initialization of MySQL -->
+#### Configure MySQL
 
 ```bash
-# ensure mysql is running
-mysqld
-
-# connect to mysql
-mysql -uroot --password="password"
+./provision/mysql-config.sh
 ```
+#### Seed database w/ test data
 
-#### Configure Database.
-
-```SQL
--- Type the following when connected to mysql
-
--- create database
-CREATE DATABASE ohyou_api;
-
--- create transaction table
-CREATE TABLE transactions (
-    id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    description VARCHAR(100) NOT NULL,    
-    purchaser INTEGER NOT NULL);
-);
-
--- create transactions__beneficiaries table
-CREATE TABLE transactions__beneficiaries (
-    transaction_id INTEGER NOT NULL,
-    beneficiary_id INTEGER NOT NULL);
+```bash
+cd provision
+go run seeder.go
 ```
 
 ## Run
@@ -80,13 +53,6 @@ I use [Insomnia](https://insomnia.rest) for testing our API. It's a beautifully 
 
 I use [Visual Studio Code](https://code.visualstudio.com) with Go language support.
 
-#### Seeding
-
-For now, issue a **GET** request to the following endpoint to seed the database: 
-
-`http://localhost:8080/api/v1/seed`
-
-<!-- TODO: Create a bash file (or some other solution) to seed the database instead of using an endpoint -->
 
 ---
 ## API Overview
