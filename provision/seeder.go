@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"math/rand"
 
@@ -36,6 +37,7 @@ func main() {
 		amount := rand.Intn(8000) + 100
 
 		// Step 1: Initial transaction
+		fmt.Printf("Seeding Transaction %v...\n", i+1)
 		tx, err := db.Begin()
 		if err != nil {
 			log.Fatal(err)
@@ -59,11 +61,12 @@ func main() {
 
 		// Save
 		tx.Commit()
+		fmt.Print("...initial transaction saved!\n")
 
 		// Step 2: Generate TransactionBeneficiaries data
 		beneficiaries := generateRandomBeneficiaries(groupCount)
 
-		for _, beneficiaryID := range beneficiaries {
+		for index, beneficiaryID := range beneficiaries {
 			tx, err = db.Begin()
 			if err != nil {
 				log.Fatal(err)
@@ -77,7 +80,10 @@ func main() {
 				log.Fatal(err)
 			}
 			tx.Commit()
+			fmt.Printf("...beneficiary %v saved!\n", index)
 		}
+		fmt.Print("...success!\n")
+		fmt.Print("-----------\n")
 	}
 }
 
