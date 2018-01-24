@@ -8,11 +8,18 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/aflashyrhetoric/ohyou-api/utils"
+	"github.com/gin-gonic/gin"
 )
 
-var db *sql.DB
+var DB *sql.DB
+	// Initialize db
+	var err error
+	DB, err := sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 type (
 	// Transaction ... is a single purchase
@@ -60,7 +67,7 @@ func loadTransactionBeneficiaryData(transactionID int) []int {
 	var (
 		beneficiaryIDs []int
 	)
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		SELECT * FROM transactions 
 		WHERE transaction_id = ?
 	`)
@@ -123,7 +130,7 @@ func CreateTransaction(c *gin.Context) {
 		Beneficiaries: beneficiaries,
 	}
 
-	tx, err := db.Begin()
+	tx, err := DB.Begin()
 	if err != nil {
 		log.Print(err)
 	}
@@ -151,7 +158,7 @@ func CreateTransaction(c *gin.Context) {
 
 	// Save a transaction (to the junction table) for each beneficiary
 	for _, beneficiaryID := range newTransaction.Beneficiaries {
-		tx, err = db.Begin()
+		tx, err = DB.Begin()
 		if err != nil {
 			log.Print(err)
 		}
@@ -190,7 +197,7 @@ func ListTransactions(c *gin.Context) {
 		responseData  []transformedTransaction
 	)
 	// Prepare SELECT statement
-	stmt, err := db.Prepare("SELECT * FROM transactions")
+	stmt, err := DB.Prepare("SELECT * FROM transactions")
 	if err != nil {
 		log.Print(err)
 	}
@@ -209,7 +216,7 @@ func ListTransactions(c *gin.Context) {
 		}
 
 		// Run second query to retrieve transactions_beneficiaries data
-		stmt, err = db.Prepare(`
+		stmt, err = DB.Prepare(`
 			SELECT beneficiary_id 
 			FROM transactions_beneficiaries 
 			WHERE transaction_id = ?
@@ -262,7 +269,7 @@ func ShowTransaction(c *gin.Context) {
 		return
 	}
 	// Prepare SELECT statement
-	stmt, err := db.Prepare(`
+	stmt, err := DB.Prepare(`
 		SELECT id, description, purchaser, amount
 		FROM transactions
 		WHERE id=?
@@ -292,7 +299,7 @@ func ShowTransaction(c *gin.Context) {
 	}
 
 	// Retrieve transactions_beneficiaries data
-	stmt, err = db.Prepare(`
+	stmt, err = DB.Prepare(`
 		SELECT beneficiary_id 
 		FROM transactions_beneficiaries 
 		WHERE transaction_id = ?
@@ -339,7 +346,7 @@ func UpdateTransaction(c *gin.Context) {
 		return
 	}
 	// Prepare SELECT statement
-	tx, err := db.Begin()
+	tx, err := DB.Begin()
 	stmt, err := tx.Prepare(`
 		UPDATE transactions 
 		SET description=?, purchaser=?, amount=?
@@ -360,7 +367,7 @@ func UpdateTransaction(c *gin.Context) {
 	beneficiaries := getBeneficiaries(c)
 
 	// First, delete all old associated beneficiaries
-	tx, err = db.Begin()
+	tx, err = DB.Begin()
 	stmt, err = tx.Prepare(`
 		DELETE FROM transactions_beneficiaries 
 		WHERE transaction_id=?;
@@ -377,7 +384,7 @@ func UpdateTransaction(c *gin.Context) {
 
 	// Second, insert new values
 	for _, beneficiaryID := range beneficiaries {
-		tx, err = db.Begin()
+		tx, err = DB.Begin()
 		stmt, err = tx.Prepare(`
 			INSERT INTO transactions_beneficiaries 
 			VALUES (?, ?);
@@ -414,7 +421,7 @@ func DeleteTransaction(c *gin.Context) {
 		return
 	}
 	// Prepare SELECT statement
-	tx, err := db.Begin()
+	tx, err := DB.Begin()
 	stmt, err := tx.Prepare(`
 		DELETE FROM transactions
 		WHERE id=?
@@ -431,7 +438,7 @@ func DeleteTransaction(c *gin.Context) {
 	tx.Commit()
 
 	// Delete beneficiary data
-	tx, err = db.Begin()
+	tx, err = DB.Begin()
 	stmt, err = tx.Prepare(`
 		DELETE FROM transactions_beneficiaries
 		WHERE transaction_id=?
