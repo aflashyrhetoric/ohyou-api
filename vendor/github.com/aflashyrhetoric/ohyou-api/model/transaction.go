@@ -9,8 +9,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/aflashyrhetoric/ohyou-api/utils"
+	// "github.com/aflashyrhetoric/ohyou-api/utils"
 )
+
+var db *sql.DB
 
 type (
 	// Transaction ... is a single purchase
