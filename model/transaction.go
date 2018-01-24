@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/aflashyrhetoric/ohyou-api/price"
+	"github.com/aflashyrhetoric/ohyou-api/utils"
 )
 
 type (
