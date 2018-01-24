@@ -7,7 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/gin-gonic/gin"
-	"github.com/aflashyrhetoric/ohyou-api/database"
+	// "github.com/aflashyrhetoric/ohyou-api/database"
 	"github.com/aflashyrhetoric/ohyou-api/model"
 	"github.com/aflashyrhetoric/ohyou-api/utils"
 )
