@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	// "github.com/aflashyrhetoric/ohyou-api/database"
-	"github.com/aflashyrhetoric/ohyou-api/model"
+	m "github.com/aflashyrhetoric/ohyou-api/model"
 	"github.com/aflashyrhetoric/ohyou-api/utils"
 )
 
@@ -28,11 +28,11 @@ func main() {
 	router := gin.Default()
 	v1 := router.Group("/api/v1/transactions")
 	{
-		v1.GET("", listTransactions)
-		v1.POST("/", createTransaction)
-		v1.GET("/:id", showTransaction)
-		v1.PUT("/:id", updateTransaction)
-		v1.DELETE("/:id", deleteTransaction)
+		v1.GET("", m.listTransactions)
+		v1.POST("/", m.createTransaction)
+		v1.GET("/:id", m.showTransaction)
+		v1.PUT("/:id", m.updateTransaction)
+		v1.DELETE("/:id", m.deleteTransaction)
 	}
 	router.Run()
 }
