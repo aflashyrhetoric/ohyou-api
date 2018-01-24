@@ -99,7 +99,7 @@ func getAmount(c *gin.Context) (int, error) {
 	return utils.ConvertDollarsStringToCents(c.PostForm("amount"))
 }
 
-func createTransaction(c *gin.Context) {
+func CreateTransaction(c *gin.Context) {
 
 	// Initial transaction
 
@@ -179,7 +179,7 @@ func createTransaction(c *gin.Context) {
 	)
 }
 
-func listTransactions(c *gin.Context) {
+func ListTransactions(c *gin.Context) {
 	var (
 		ID            int
 		Description   string
@@ -242,7 +242,7 @@ func listTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-func showTransaction(c *gin.Context) {
+func ShowTransaction(c *gin.Context) {
 	var (
 		ID            int
 		Description   string
@@ -320,7 +320,7 @@ func showTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-func updateTransaction(c *gin.Context) {
+func UpdateTransaction(c *gin.Context) {
 
 	// Retrieve POST update data
 	transactionID, _ := getID(c)
@@ -403,7 +403,7 @@ func updateTransaction(c *gin.Context) {
 	)
 }
 
-func deleteTransaction(c *gin.Context) {
+func DeleteTransaction(c *gin.Context) {
 	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)

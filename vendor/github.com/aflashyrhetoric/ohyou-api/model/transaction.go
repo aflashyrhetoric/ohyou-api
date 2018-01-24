@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	// "github.com/aflashyrhetoric/ohyou-api/utils"
+	"github.com/aflashyrhetoric/ohyou-api/utils"
 )
 
 var db *sql.DB
@@ -96,7 +96,7 @@ func getPurchaser(c *gin.Context) (int, error) {
 }
 
 func getAmount(c *gin.Context) (int, error) {
-	return price.ConvertDollarsStringToCents(c.PostForm("amount"))
+	return utils.ConvertDollarsStringToCents(c.PostForm("amount"))
 }
 
 func createTransaction(c *gin.Context) {
