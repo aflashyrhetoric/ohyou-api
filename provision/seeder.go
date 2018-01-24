@@ -7,8 +7,8 @@ import (
 	"math/rand"
 
 	_ "github.com/go-sql-driver/mysql"
-
-	au "github.com/aflashyrhetoric/adelie-utils"
+	"github.com/aflashyrhetoric/ohyou-api/utils"
+	"github.com/aflashyrhetoric/ohyou-api/price"
 	"github.com/malisit/kolpa"
 )
 
@@ -99,7 +99,7 @@ func generateRandomBeneficiaries(maxNum int) []int {
 		for i := 0; i < randomLoopCount; i++ {
 			randomBeneficiaryID := rand.Intn(maxNum)
 			// If randomly generated beneficiary array doesn't already contain the ID, add it
-			if !au.ArrayContainsInt(randomBeneficiaryID, randomBeneficiariesArr) {
+			if !utils.ArrayContainsInt(randomBeneficiaryID, randomBeneficiariesArr) {
 				randomBeneficiariesArr = append(randomBeneficiariesArr, randomBeneficiaryID)
 			}
 		}

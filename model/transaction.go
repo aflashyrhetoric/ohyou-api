@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	p "github.com/aflashyrhetoric/ohyou-api/price"
 )
 
 type (
@@ -93,7 +94,7 @@ func getPurchaser(c *gin.Context) (int, error) {
 }
 
 func getAmount(c *gin.Context) (int, error) {
-	return ConvertDollarsStringToCents(c.PostForm("amount"))
+	return p.ConvertDollarsStringToCents(c.PostForm("amount"))
 }
 
 func createTransaction(c *gin.Context) {
