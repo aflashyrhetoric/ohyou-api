@@ -5,7 +5,7 @@
   branch = "master"
   name = "github.com/aflashyrhetoric/ohyou-api"
   packages = ["model","utils"]
-  revision = "fdaa40efc0c5b9acc90f6007f8ca91ac2c50af51"
+  revision = "8937a96b636c5cd627f0ddc88e3d79f7893cf95d"
 
 [[projects]]
   branch = "master"
