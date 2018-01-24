@@ -1,4 +1,10 @@
-// package main
+package database
+
+import "fmt"
+
+func Test() {
+  fmt.Print("test")
+}
 
 // import (
 // 	"log"

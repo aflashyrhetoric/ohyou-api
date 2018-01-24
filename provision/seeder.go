@@ -8,7 +8,6 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/aflashyrhetoric/ohyou-api/utils"
-	"github.com/aflashyrhetoric/ohyou-api/price"
 	"github.com/malisit/kolpa"
 )
 
