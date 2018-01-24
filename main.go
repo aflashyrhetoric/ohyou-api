@@ -12,13 +12,13 @@ import (
 	"github.com/aflashyrhetoric/ohyou-api/utils"
 )
 
-var db *sql.DB
+// var db *sql.DB
 
 func main() {
 
 	// Initialize db
 	var err error
-	db, err = sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
+	db, err := sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
 	if err != nil {
 		log.Fatal(err)
 	}
