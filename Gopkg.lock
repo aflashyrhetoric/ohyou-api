@@ -3,12 +3,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/aflashyrhetoric/ohyou-api"
-  packages = ["model","utils"]
-  revision = "6d2ceebaa976cf883ef0ea80d995e3fc3b2d16b8"
-
-[[projects]]
-  branch = "master"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
   revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
@@ -70,6 +64,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c041dd0e950a4f1b86a6c213ba320ae4beafedc44823f97c73b143dc528c5308"
+  inputs-digest = "66f160fb7be1cab9c797bcf62af294b95c810eef3f5da64f3c5bb4e91e6475c3"
   solver-name = "gps-cdcl"
   solver-version = 1
