@@ -1,10 +1,12 @@
 package database
 
-import "github.com/aflashyrhetoric/ohyou-api/model"
+import (
+	"database/sql"
+)
 
 var DatabaseInfo model.Database
 
-func NewDB(){
+func NewDB() *sql.DB {
 	// Initialize db
 	var err error
 	db, err := sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")

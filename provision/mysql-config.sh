@@ -2,8 +2,8 @@
 ## configure mysql database
 ## this file is idempotent and can be repeatedly run safely 
 
-echo "Starting MySQL service..."
-brew services start mysql
+echo "Starting Mariadb service..."
+brew services start mariadb
 
 # echo "Logging into mysql client..."
 #mysql -uroot --password="password"

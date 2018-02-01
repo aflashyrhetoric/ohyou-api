@@ -9,19 +9,14 @@ import (
 	"strings"
 
 	"github.com/aflashyrhetoric/ohyou-api/utils"
+	"github.com/aflashyrhetoric/ohyou-api/database"
 	"github.com/gin-gonic/gin"
 )
 
-var DB *sql.DB
-	// Initialize db
-	var err error
-	DB, err := sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
 type (
+	// DB := database.NewDB()
+	db := database
+
 	// Transaction ... is a single purchase
 	Transaction struct {
 		id          int
