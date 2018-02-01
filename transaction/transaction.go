@@ -13,8 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// DB := database.NewDB()
-// var db *sql.DB
+var db = database.NewDB()
 
 type (
 
@@ -63,7 +62,7 @@ func loadTransactionBeneficiaryData(transactionID int) []int {
 	var (
 		beneficiaryIDs []int
 	)
-	stmt, err := DB.Prepare(`
+	stmt, err := db.Prepare(`
 		SELECT * FROM transactions 
 		WHERE transaction_id = ?
 	`)
@@ -104,7 +103,6 @@ func getAmount(c *gin.Context) (int, error) {
 
 func CreateTransaction(c *gin.Context) {
 
-	DB := database.New()
 	// Initial transaction
 
 	// Retrieve POST values
@@ -127,7 +125,7 @@ func CreateTransaction(c *gin.Context) {
 		Beneficiaries: beneficiaries,
 	}
 
-	tx, err := DB.Begin()
+	tx, err := db.Begin()
 	if err != nil {
 		log.Print(err)
 	}
@@ -155,7 +153,7 @@ func CreateTransaction(c *gin.Context) {
 
 	// Save a transaction (to the junction table) for each beneficiary
 	for _, beneficiaryID := range newTransaction.Beneficiaries {
-		tx, err = DB.Begin()
+		tx, err = db.Begin()
 		if err != nil {
 			log.Print(err)
 		}
@@ -194,9 +192,8 @@ func ListTransactions(c *gin.Context) {
 		responseData  []transformedTransaction
 	)
 
-	DB := database.New()
 	// Prepare SELECT statement
-	stmt, err := DB.Prepare("SELECT * FROM transactions")
+	stmt, err := db.Prepare("SELECT * FROM transactions")
 	if err != nil {
 		log.Print(err)
 	}
@@ -215,7 +212,7 @@ func ListTransactions(c *gin.Context) {
 		}
 
 		// Run second query to retrieve transactions_beneficiaries data
-		stmt, err = DB.Prepare(`
+		stmt, err = db.Prepare(`
 			SELECT beneficiary_id 
 			FROM transactions_beneficiaries 
 			WHERE transaction_id = ?
@@ -258,7 +255,6 @@ func ShowTransaction(c *gin.Context) {
 		Beneficiaries []int
 		responseData  transformedTransaction
 	)
-	DB := database.New()
 	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)
@@ -269,7 +265,7 @@ func ShowTransaction(c *gin.Context) {
 		return
 	}
 	// Prepare SELECT statement
-	stmt, err := DB.Prepare(`
+	stmt, err := db.Prepare(`
 		SELECT id, description, purchaser, amount
 		FROM transactions
 		WHERE id=?
@@ -299,7 +295,7 @@ func ShowTransaction(c *gin.Context) {
 	}
 
 	// Retrieve transactions_beneficiaries data
-	stmt, err = DB.Prepare(`
+	stmt, err = db.Prepare(`
 		SELECT beneficiary_id 
 		FROM transactions_beneficiaries 
 		WHERE transaction_id = ?
@@ -345,9 +341,8 @@ func UpdateTransaction(c *gin.Context) {
 			})
 		return
 	}
-	DB := database.New()
 	// Prepare SELECT statement
-	tx, err := DB.Begin()
+	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 		UPDATE transactions 
 		SET description=?, purchaser=?, amount=?
@@ -368,7 +363,7 @@ func UpdateTransaction(c *gin.Context) {
 	beneficiaries := getBeneficiaries(c)
 
 	// First, delete all old associated beneficiaries
-	tx, err = DB.Begin()
+	tx, err = db.Begin()
 	stmt, err = tx.Prepare(`
 		DELETE FROM transactions_beneficiaries 
 		WHERE transaction_id=?;
@@ -385,7 +380,7 @@ func UpdateTransaction(c *gin.Context) {
 
 	// Second, insert new values
 	for _, beneficiaryID := range beneficiaries {
-		tx, err = DB.Begin()
+		tx, err = db.Begin()
 		stmt, err = tx.Prepare(`
 			INSERT INTO transactions_beneficiaries 
 			VALUES (?, ?);
@@ -412,7 +407,6 @@ func UpdateTransaction(c *gin.Context) {
 }
 
 func DeleteTransaction(c *gin.Context) {
-	DB := database.New()
 	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)
@@ -423,7 +417,7 @@ func DeleteTransaction(c *gin.Context) {
 		return
 	}
 	// Prepare SELECT statement
-	tx, err := DB.Begin()
+	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 		DELETE FROM transactions
 		WHERE id=?
@@ -440,7 +434,7 @@ func DeleteTransaction(c *gin.Context) {
 	tx.Commit()
 
 	// Delete beneficiary data
-	tx, err = DB.Begin()
+	tx, err = db.Begin()
 	stmt, err = tx.Prepare(`
 		DELETE FROM transactions_beneficiaries
 		WHERE transaction_id=?
