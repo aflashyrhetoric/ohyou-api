@@ -26,10 +26,6 @@
 
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/aflashyrhetoric/payup-api"
-
-[[constraint]]
   name = "github.com/gin-gonic/gin"
   version = "1.2.0"
 
