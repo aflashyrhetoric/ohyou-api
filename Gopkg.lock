@@ -3,25 +3,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/aflashyrhetoric/ohyou-api"
-  packages = [
-    "model",
-    "utils"
-  ]
-  revision = "2f893bc2256c94428d97273ad10729a61aa78450"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/aflashyrhetoric/payup-api"
-  packages = [
-    "database",
-    "model",
-    "utils"
-  ]
-  revision = "2f893bc2256c94428d97273ad10729a61aa78450"
-
-[[projects]]
-  branch = "master"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
   revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
@@ -87,6 +68,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "78bf8755b7605af1909c6712c14f2cdbdf8848163feddf05b8c1014f99280f79"
+  inputs-digest = "66f160fb7be1cab9c797bcf62af294b95c810eef3f5da64f3c5bb4e91e6475c3"
   solver-name = "gps-cdcl"
   solver-version = 1
