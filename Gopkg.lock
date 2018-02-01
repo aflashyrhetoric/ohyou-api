@@ -3,13 +3,36 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/aflashyrhetoric/ohyou-api"
+  packages = [
+    "model",
+    "utils"
+  ]
+  revision = "2f893bc2256c94428d97273ad10729a61aa78450"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/aflashyrhetoric/payup-api"
+  packages = [
+    "database",
+    "model",
+    "utils"
+  ]
+  revision = "2f893bc2256c94428d97273ad10729a61aa78450"
+
+[[projects]]
+  branch = "master"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
   revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
 
 [[projects]]
   name = "github.com/gin-gonic/gin"
-  packages = [".","binding","render"]
+  packages = [
+    ".",
+    "binding",
+    "render"
+  ]
   revision = "d459835d2b077e44f7c9b453505ee29881d5d12d"
   version = "v1.2"
 
@@ -20,10 +43,10 @@
   version = "v1.3"
 
 [[projects]]
-  branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "c65a0412e71e8b9b3bfd22925720d23c0f054237"
+  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -47,7 +70,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "af50095a40f9041b3b38960738837185c26e9419"
+  revision = "8f27ce8a604014414f8dfffc25cbcde83a3f2216"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v8"
@@ -64,6 +87,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "66f160fb7be1cab9c797bcf62af294b95c810eef3f5da64f3c5bb4e91e6475c3"
+  inputs-digest = "78bf8755b7605af1909c6712c14f2cdbdf8848163feddf05b8c1014f99280f79"
   solver-name = "gps-cdcl"
   solver-version = 1

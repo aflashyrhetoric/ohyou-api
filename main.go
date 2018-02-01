@@ -3,7 +3,7 @@ package main
 import (
 	_ "github.com/go-sql-driver/mysql"
 
-	m "github.com/aflashyrhetoric/ohyou-api/model"
+	m "github.com/aflashyrhetoric/payup-api/model"
 	"github.com/gin-gonic/gin"
 )
 

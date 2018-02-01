@@ -6,8 +6,8 @@ import (
 	"log"
 	"math/rand"
 
+	"github.com/aflashyrhetoric/payup-api/utils"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/aflashyrhetoric/ohyou-api/utils"
 	"github.com/malisit/kolpa"
 )
 

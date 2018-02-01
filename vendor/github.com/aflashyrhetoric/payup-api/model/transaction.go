@@ -8,16 +8,20 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aflashyrhetoric/payup-api/database"
-	"github.com/aflashyrhetoric/payup-api/utils"
+	"github.com/aflashyrhetoric/ohyou-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
-// DB := database.NewDB()
-// var db *sql.DB
+var DB *sql.DB
+	// Initialize db
+	var err error
+	DB, err := sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 type (
-
 	// Transaction ... is a single purchase
 	Transaction struct {
 		id          int
@@ -104,7 +108,6 @@ func getAmount(c *gin.Context) (int, error) {
 
 func CreateTransaction(c *gin.Context) {
 
-	DB := database.New()
 	// Initial transaction
 
 	// Retrieve POST values
@@ -193,8 +196,6 @@ func ListTransactions(c *gin.Context) {
 		Beneficiaries []int
 		responseData  []transformedTransaction
 	)
-
-	DB := database.New()
 	// Prepare SELECT statement
 	stmt, err := DB.Prepare("SELECT * FROM transactions")
 	if err != nil {
@@ -258,7 +259,6 @@ func ShowTransaction(c *gin.Context) {
 		Beneficiaries []int
 		responseData  transformedTransaction
 	)
-	DB := database.New()
 	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)
@@ -345,7 +345,6 @@ func UpdateTransaction(c *gin.Context) {
 			})
 		return
 	}
-	DB := database.New()
 	// Prepare SELECT statement
 	tx, err := DB.Begin()
 	stmt, err := tx.Prepare(`
@@ -412,7 +411,6 @@ func UpdateTransaction(c *gin.Context) {
 }
 
 func DeleteTransaction(c *gin.Context) {
-	DB := database.New()
 	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)
