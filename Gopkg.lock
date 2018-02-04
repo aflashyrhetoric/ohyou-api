@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/corpix/uarand"
+  packages = ["."]
+  revision = "2b8494104d86337cdd41d0a49cbed8e4583c0ab4"
+
+[[projects]]
+  branch = "master"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
   revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
@@ -31,9 +37,9 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/malisit/kolpa"
+  name = "github.com/icrowley/fake"
   packages = ["."]
-  revision = "10c4658a62cbd37e83531a3a2732c1dab63eb6c9"
+  revision = "4178557ae428460c3780a381c824a1f3aceb6325"
 
 [[projects]]
   name = "github.com/mattn/go-isatty"
@@ -68,6 +74,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "66f160fb7be1cab9c797bcf62af294b95c810eef3f5da64f3c5bb4e91e6475c3"
+  inputs-digest = "c36fc13aaff86a44973fcd43b05f124f444869128f96baf71ffde9f9cb80f0b9"
   solver-name = "gps-cdcl"
   solver-version = 1

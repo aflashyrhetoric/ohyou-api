@@ -8,7 +8,7 @@ import (
 	"github.com/aflashyrhetoric/payup-api/database"
 	"github.com/aflashyrhetoric/payup-api/utils"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/malisit/kolpa"
+	"github.com/icrowley/fake"
 )
 
 // SeedTransactions ... Seeds database with sample data.
@@ -21,15 +21,13 @@ func main() {
 	}
 	defer db.Close()
 
-	k := kolpa.C()
-
 	numberOfRecords := 25
 	groupCount := 4
 
 	// Create numberOfRecords records
 	for i := 0; i < numberOfRecords; i++ {
-		description := k.LoremParagraph()
-		description = description[:25]
+		description := fake.Paragraph()
+		description = description[:10]
 		purchaser := rand.Intn(groupCount) + 1
 		amount := rand.Intn(8000) + 100
 
