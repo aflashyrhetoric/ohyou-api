@@ -1,20 +1,12 @@
 package main
 
 import (
-	"database/sql"
 
-	"github.com/aflashyrhetoric/payup-api/database"
 	t "github.com/aflashyrhetoric/payup-api/transaction"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 )
 
-// DB ... points to the database
-var DB *sql.DB
-
 func main() {
-
-	DB = database.NewDB()
 
 	// Configure Router
 	router := gin.Default()

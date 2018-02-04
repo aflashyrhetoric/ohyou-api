@@ -4,20 +4,20 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/aflashyrhetoric/payup-api/model"
+	// Imported for testing purposes
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var DatabaseInfo model.Database
+// var DatabaseInfo model.Database
 
-// New...returns a pointer to the database
-func NewDB() *sql.DB {
+// NewDB ...returns a pointer to the database
+func NewDB() (*sql.DB, error) {
 	// Initialize db
 	var err error
-	db, err := sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
+	db, err := sql.Open("mysql", "root:password@tcp(localhost:3306)/payup_api")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return db
+	return db, err
 }

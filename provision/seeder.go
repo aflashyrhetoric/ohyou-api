@@ -1,24 +1,21 @@
-package provision
+package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"math/rand"
 
+	"github.com/aflashyrhetoric/payup-api/database"
 	"github.com/aflashyrhetoric/payup-api/utils"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/malisit/kolpa"
 )
 
-var db *sql.DB
-
 // SeedTransactions ... Seeds database with sample data.
 func main() {
 
 	// Connect to database
-	var err error
-	db, err = sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
+	db, err := database.NewDB()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,7 +28,8 @@ func main() {
 
 	// Create numberOfRecords records
 	for i := 0; i < numberOfRecords; i++ {
-		description := k.LoremWord()
+		description := k.LoremParagraph()
+		description = description[:25]
 		purchaser := rand.Intn(groupCount) + 1
 		amount := rand.Intn(8000) + 100
 
@@ -104,5 +102,6 @@ func generateRandomBeneficiaries(maxNum int) []int {
 		}
 	}
 
+	// return []int{1, 2, 3}
 	return randomBeneficiariesArr
 }

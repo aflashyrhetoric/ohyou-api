@@ -13,16 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var db = database.NewDB()
-
 type (
 
 	// Transaction ... is a single purchase
 	Transaction struct {
-		id          int
-		description string
-		purchaser   int
-		amount      int
+		id          int    `db:"id"`
+		description string `db:"description"`
+		purchaser   int    `db:"purchaser"`
+		amount      int    `db:"amount"`
 	}
 	// TransformedTransaction ... is a Transaction with additional information
 	transformedTransaction struct {
@@ -59,9 +57,13 @@ func getBeneficiaries(c *gin.Context) []int {
 
 // Load beneficiaries from database
 func loadTransactionBeneficiaryData(transactionID int) []int {
-	var (
-		beneficiaryIDs []int
-	)
+	var beneficiaryIDs []int
+	db, err := database.NewDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	stmt, err := db.Prepare(`
 		SELECT * FROM transactions 
 		WHERE transaction_id = ?
@@ -104,6 +106,12 @@ func getAmount(c *gin.Context) (int, error) {
 func CreateTransaction(c *gin.Context) {
 
 	// Initial transaction
+	db, err := database.NewDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
 
 	// Retrieve POST values
 	description := getDescription(c)
@@ -191,6 +199,11 @@ func ListTransactions(c *gin.Context) {
 		Beneficiaries []int
 		responseData  []transformedTransaction
 	)
+	db, err := database.NewDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 	// Prepare SELECT statement
 	stmt, err := db.Prepare("SELECT * FROM transactions")
@@ -234,8 +247,8 @@ func ListTransactions(c *gin.Context) {
 			}
 			Beneficiaries = append(Beneficiaries, BeneficiaryID)
 		}
-
 		responseData = append(responseData, transformedTransaction{ID, Description, Purchaser, Amount, Beneficiaries})
+		Beneficiaries = nil
 	}
 	err = rows.Err()
 	if err != nil {
@@ -255,6 +268,13 @@ func ShowTransaction(c *gin.Context) {
 		Beneficiaries []int
 		responseData  transformedTransaction
 	)
+	db, err := database.NewDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
 	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)
@@ -324,6 +344,13 @@ func ShowTransaction(c *gin.Context) {
 }
 
 func UpdateTransaction(c *gin.Context) {
+
+	db, err := database.NewDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
 
 	// Retrieve POST update data
 	transactionID, _ := getID(c)
@@ -407,6 +434,13 @@ func UpdateTransaction(c *gin.Context) {
 }
 
 func DeleteTransaction(c *gin.Context) {
+	db, err := database.NewDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
 	TransactionID, err := getID(c)
 	if err != nil {
 		log.Print(err)
