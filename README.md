@@ -1,36 +1,51 @@
-Ohyou API
+Payup API
 ===
 
-Ohyou API is the back-end to Ohyou. Ohyou (temp) is an app to help you manage debts between friends. Existing solutions felt like they subject to feature creep, and like they were not optimized for my particular use-case.
+Payup is an app to help you manage debts between friends. 
+
+## Why?
+
+Existing solutions felt like they were subject to feature creep; they also felt like they weren't optimized for my particular use-case.
 
 ## Getting Started
+
+To install Payup API locally on your machine, follow the steps below.
 
 ### Clone & Install Dependencies
 
 ```bash
 # clone repo
-git@gitlab.com:aflashyrhetoric/ohyou-api.git
+git@gitlab.com:aflashyrhetoric/payup-api.git
 
 # Install dependencies
 go get
+dep ensure
 ```
 
 # Requirements
 - MySQL 15.1 
 - Go 1.9.1
 
-<sup>If you haven't done so already and it is safe, run `mysql_secure_installation` to get an interactive prompt where you'll be able to set the `root` user and password. </sup>
+<sup>If you haven't done so already and it is safe, run `mysql_secure_installation` to get an interactive prompt where you'll be able to set the `root` user and password. MariaDB or MySQL should do.</sup>
 
 #### Configure MySQL
+
+**Ensure that Docker, or other applications that may affect your ports, is NOT running**
+
+Run the provisioning script, which should populate the database and run the seeder (which adds 25 fake records)
 
 ```bash
 ./provision/mysql-config.sh
 ```
 #### Seed database w/ test data
 
+To run the seeder ONLY, or to add more records to the database, run the following:
+
 ```bash
 cd provision
 go run seeder.go
+# or
+go run provision/seeder.go
 ```
 
 ## Run
@@ -42,7 +57,7 @@ For now, `main.go` will connect to your database via the hardcoded parameter str
 <!-- TODO: Retrieve database connections from an environment file -->
 
 ```golang
-db, err = sql.Open("mysql", "root:password@tcp(localhost)/ohyou_api")
+db, err = sql.Open("mysql", "root:password@tcp(localhost:3306)/ohyou_api")
 ```
 
 The app should now be running the API on localhost on port 8080. :smile_cat:
@@ -52,7 +67,6 @@ The app should now be running the API on localhost on port 8080. :smile_cat:
 I use [Insomnia](https://insomnia.rest) for testing our API. It's a beautifully designed, intuitive app that's easy to get started with. 
 
 I use [Visual Studio Code](https://code.visualstudio.com) with Go language support.
-
 
 ---
 ## API Overview
