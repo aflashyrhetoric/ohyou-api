@@ -60,7 +60,9 @@ For now, `main.go` will connect to your database via the hardcoded parameter str
 db, err = sql.Open("mysql", "root:password@tcp(localhost:3306)/ohyou_api")
 ```
 
-The app should now be running the API on localhost on port 8080. :smile_cat:
+The API should now be running the API on localhost on port 8080. :smile_cat:
+
+_NOTE: Visiting `http://localhost:8080` will do nothing! The endpoints are available, but no pages!_
 
 ## Testing & Development Workflow
 
