@@ -23,8 +23,8 @@ dep ensure
 ```
 
 # Requirements
-- MySQL 15.1 
-- Go 1.9.1
+- MariaDB  `brew install mariadb`
+- Go 1.9.1 or later [Download Link](https://golang.org/dl/)
 
 <sup>If you haven't done so already and it is safe, run `mysql_secure_installation` to get an interactive prompt where you'll be able to set the `root` user and password. MariaDB or MySQL should do.</sup>
 
