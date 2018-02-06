@@ -26,7 +26,16 @@ dep ensure
 - MariaDB  `brew install mariadb`
 - Go 1.9.1 or later [Download Link](https://golang.org/dl/)
 
-<sup>If you haven't done so already and it is safe, run `mysql_secure_installation` to get an interactive prompt where you'll be able to set the `root` user and password. MariaDB or MySQL should do.</sup>
+<sup>If you haven't done so already and it is safe, run `mysql_secure_installation` to get an interactive prompt where you'll be able to set settings according to the table below.</sup>
+
+|Prompt begins with...|Value|
+|---------------------|-----|
+|Enter current password for root|<Enter for none>|
+|Remove anonymous users|Y|
+|Disallow root login|Y|
+|Remove test database (...)|Y|
+|Reload privilege tables|Y|
+
 
 #### Configure MySQL
 
