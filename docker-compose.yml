@@ -1,0 +1,49 @@
+version: "2"
+services:
+  api:
+    image: aflashyrhetoric/payup-api:dev
+    build: .
+    volumes:
+      - .:/go/src/github.com/aflashyrhetoric/payup-api
+    links:
+      - db
+    depends_on:
+      - db
+    ports:
+      - "80:8114" 
+    # environment:
+    #   - ENV=development
+    #   - DB_NAME=payup_api
+    #   - DB_USER=root
+    #   - DB_PASS=password
+    #   - DB_HOST=db # database container alias - db in this case
+    # command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; go build && gin --appPort 8000'
+  # client:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile-node
+  #   ports:
+  #     - "8080:8080" # webpack-dev-server runs on 8080 by default
+  #   volumes:
+  #     - .:/usr/app
+  #     - /usr/app/node_modules
+  #   links:
+  #     - db
+  #     - api
+  #   depends_on:
+  #     - db
+  #     - api
+  #   environment:
+  #     - NODE_ENV=development
+  #   command: npm run client
+  db:
+    image: _/mysql:8.0.3
+    ports:
+      - "3306:3306"
+    volumes:
+      - .data-postgres:/var/lib/postgresql/data
+    # environment:
+    #   - POSTGRES_USER=postgres
+    #   - POSTGRES_PASSWORD=postgres
+    #   - POSTGRES_DB=payup-api
+    restart: always
