@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # mysql-config.sh
 ## configure mysql database
 ## this file is idempotent and can be repeatedly run safely 

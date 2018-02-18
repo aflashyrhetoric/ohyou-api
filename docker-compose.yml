@@ -1,0 +1,24 @@
+version: "2"
+services:
+  api:
+    image: aflashyrhetoric/payup-api:dev
+    build: .
+    volumes:
+      - .:/go/src/github.com/aflashyrhetoric/payup-api
+    links:
+      - db
+    depends_on:
+      - db
+    ports:
+      - "80:8114" 
+  db:
+    image: mysql:8.0.3
+    ports:
+      - "3306:3306"
+    volumes:
+      - .data-postgres:/var/lib/postgresql/data
+    # environment:
+    #   - POSTGRES_USER=postgres
+    #   - POSTGRES_PASSWORD=postgres
+    #   - POSTGRES_DB=payup-api
+    restart: always
