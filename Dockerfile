@@ -9,6 +9,9 @@ ADD . /go/src/github.com/aflashyrhetoric/payup-api
 # Set it as the directory in which CMD will be run
 WORKDIR /go/src/github.com/aflashyrhetoric/payup-api
 
+# Initialize database
+RUN /go/src/github.com/aflashyrhetoric/payup-api/provision/mysql-config.sh
+
 # Run the main.go file
 CMD ["/go/src/github.com/aflashyrhetoric/payup-api/main"]
 

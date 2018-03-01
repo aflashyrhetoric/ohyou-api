@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 services:
   api:
     image: aflashyrhetoric/payup-api:dev
@@ -17,8 +17,6 @@ services:
       - "3306:3306"
     volumes:
       - .data-postgres:/var/lib/postgresql/data
-    # environment:
-    #   - POSTGRES_USER=postgres
-    #   - POSTGRES_PASSWORD=postgres
-    #   - POSTGRES_DB=payup-api
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
     restart: always

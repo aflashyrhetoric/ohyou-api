@@ -4,8 +4,8 @@
 ## configure mysql database
 ## this file is idempotent and can be repeatedly run safely 
 
-echo "Starting Mariadb service..."
-brew services start mariadb
+# echo "Starting Mariadb service..."
+# brew services start mariadb
 
 # echo "Logging into mysql client..."
 #mysql -uroot --password="password"
@@ -33,4 +33,4 @@ mysql --defaults-extra-file=mysql.cnf -e \
 echo "...success!"
 
 # Run the seeder
-go run seeder.go
+# go run seeder.go
