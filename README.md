@@ -45,6 +45,8 @@ Run the provisioning script, which should populate the database and run the seed
 
 ```bash
 ./provision/mysql-config.sh
+
+# You may need to add execution permissions to script with `chmod +x ./provision/mysql-config.sh`
 ```
 #### Seed database w/ test data
 
