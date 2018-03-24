@@ -15,19 +15,19 @@ mysql --defaults-extra-file=mysql.cnf -e \
   "CREATE DATABASE IF NOT EXISTS payup_api;"
 echo "...success!"
 
-echo "Create transactions table..."
+echo "Create expenses table..."
 mysql --defaults-extra-file=mysql.cnf -e \
-  "USE payup_api; CREATE TABLE IF NOT EXISTS transactions (
+  "USE payup_api; CREATE TABLE IF NOT EXISTS expenses (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     description VARCHAR(200),    
     purchaser INTEGER,
     amount INTEGER);"
 echo "...success!"
 
-echo "Create junction table transactions_beneficiaries..."
+echo "Create junction table expenses_beneficiaries..."
 mysql --defaults-extra-file=mysql.cnf -e \
-  "USE payup_api; CREATE TABLE IF NOT EXISTS transactions_beneficiaries (
-    transaction_id INTEGER,
+  "USE payup_api; CREATE TABLE IF NOT EXISTS expenses_beneficiaries (
+    expense_id INTEGER,
     beneficiary_id INTEGER);"
 
 echo "...success!"

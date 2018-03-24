@@ -11,7 +11,7 @@ import (
 	"github.com/icrowley/fake"
 )
 
-// SeedTransactions ... Seeds database with sample data.
+// SeedExpenses ... Seeds database with sample data.
 func main() {
 
 	// Connect to database
@@ -31,14 +31,14 @@ func main() {
 		purchaser := rand.Intn(groupCount) + 1
 		amount := rand.Intn(8000) + 100
 
-		// Step 1: Initial transaction
-		fmt.Printf("Seeding Transaction %v...\n", i+1)
+		// Step 1: Initial expense
+		fmt.Printf("Seeding Expense %v...\n", i+1)
 		tx, err := db.Begin()
 		if err != nil {
 			log.Fatal(err)
 		}
 		stmt, err := tx.Prepare(`
-			INSERT INTO transactions 
+			INSERT INTO expenses 
 			VALUES(NULL, ?, ?, ?)
 		`)
 		if err != nil {
@@ -56,9 +56,9 @@ func main() {
 
 		// Save
 		tx.Commit()
-		fmt.Print("...initial transaction saved!\n")
+		fmt.Print("...initial expense saved!\n")
 
-		// Step 2: Generate TransactionBeneficiaries data
+		// Step 2: Generate ExpenseBeneficiaries data
 		beneficiaries := generateRandomBeneficiaries(groupCount)
 
 		for index, beneficiaryID := range beneficiaries {
@@ -67,7 +67,7 @@ func main() {
 				log.Fatal(err)
 			}
 			stmt, err = tx.Prepare(`
-				INSERT INTO transactions_beneficiaries 
+				INSERT INTO expenses_beneficiaries 
 				VALUES(?, ?) 
 			`)
 			stmt.Exec(lastInsertID, beneficiaryID)

@@ -85,23 +85,23 @@ I use [Visual Studio Code](https://code.visualstudio.com) with Go language suppo
 ## API Overview
 
 ## Parameters
-### Transaction
+### Expense
 
 |Property|Type|Content|Default|Example Value|
 |--------|--------------|----------|--------|--------| 
-|Description|String|A short description of the transaction|N/A|Dozen eggs|
+|Description|String|A short description of the expense|N/A|Dozen eggs|
 |Purchaser|uint|User ID for user who purchased|N/A|4|
 |Amount|uint|Cost of purchase in pennies (in USD for now)|0|500|
-|Beneficiaries|[]int|User IDs of users who benefitted from transaction|0|500|
+|Beneficiaries|[]int|User IDs of users who benefitted from expense|0|500|
 
 ## Endpoints
 
-### Transaction
+### Expense
 | HTTP Method | Endpoint          | Method       | 
 |:------------|:------------------|:------------------|
-| GET         | /transactions/    | listTransaction   |
-| POST        | /transactions/    | createTransaction |
-| GET         | /transactions/:id | showTransaction   |
-| PUT         | /transactions/:id | updateTransaction |
-| DELETE      | /transactions/:id | deleteTransaction |
+| GET         | /expenses/    | listExpense   |
+| POST        | /expenses/    | createExpense |
+| GET         | /expenses/:id | showExpense   |
+| PUT         | /expenses/:id | updateExpense |
+| DELETE      | /expenses/:id | deleteExpense |
 

@@ -15,15 +15,15 @@ import (
 
 type (
 
-	// Transaction ... is a single purchase
-	Transaction struct {
+	// Expense ... is a single purchase
+	Expense struct {
 		id          int    `db:"id"`
 		description string `db:"description"`
 		purchaser   int    `db:"purchaser"`
 		amount      int    `db:"amount"`
 	}
-	// TransformedTransaction ... is a Transaction with additional information
-	transformedTransaction struct {
+	// TransformedExpense ... is a Expense with additional information
+	transformedExpense struct {
 		ID            int    `json:"id"`
 		Description   string `json:"description"`
 		Purchaser     int    `json:"purchaser"`
@@ -56,7 +56,7 @@ func getBeneficiaries(c *gin.Context) []int {
 }
 
 // Load beneficiaries from database
-func loadTransactionBeneficiaryData(transactionID int) []int {
+func loadExpenseBeneficiaryData(expenseID int) []int {
 	var beneficiaryIDs []int
 	db, err := database.NewDB()
 	if err != nil {
@@ -65,20 +65,20 @@ func loadTransactionBeneficiaryData(transactionID int) []int {
 	defer db.Close()
 
 	stmt, err := db.Prepare(`
-		SELECT * FROM transactions 
-		WHERE transaction_id = ?
+		SELECT * FROM expenses 
+		WHERE expense_id = ?
 	`)
 	if err != nil {
 		log.Print(err)
 	}
-	rows, err := stmt.Query(transactionID)
+	rows, err := stmt.Query(expenseID)
 	if err != nil {
 		log.Print(err)
 	}
 	defer rows.Close()
 	// Scan values to Go variables
 	for rows.Next() {
-		err := rows.Scan(&transactionID, beneficiaryIDs)
+		err := rows.Scan(&expenseID, beneficiaryIDs)
 		if err != nil {
 			log.Print(err)
 		}
@@ -103,9 +103,9 @@ func getAmount(c *gin.Context) (int, error) {
 	return utils.ConvertDollarsStringToCents(c.PostForm("amount"))
 }
 
-func CreateTransaction(c *gin.Context) {
+func CreateExpense(c *gin.Context) {
 
-	// Initial transaction
+	// Initial expense
 	db, err := database.NewDB()
 	if err != nil {
 		log.Fatal(err)
@@ -126,7 +126,7 @@ func CreateTransaction(c *gin.Context) {
 	beneficiaries := getBeneficiaries(c)
 
 	// Build up model to be saved
-	newTransaction := transformedTransaction{
+	newExpense := transformedExpense{
 		Description:   description,
 		Purchaser:     int(purchaser),
 		Amount:        amount,
@@ -138,16 +138,16 @@ func CreateTransaction(c *gin.Context) {
 		log.Print(err)
 	}
 	stmt, err := tx.Prepare(`
-		INSERT INTO transactions 
+		INSERT INTO expenses 
 		VALUES(NULL, ?, ?, ?)
 	`)
 	if err != nil {
 		log.Print(err)
 	}
 	res, err := stmt.Exec(
-		newTransaction.Description,
-		newTransaction.Amount,
-		newTransaction.Purchaser)
+		newExpense.Description,
+		newExpense.Amount,
+		newExpense.Purchaser)
 	if err != nil {
 		log.Print(err)
 	}
@@ -159,14 +159,14 @@ func CreateTransaction(c *gin.Context) {
 
 	// Save beneficiaries data
 
-	// Save a transaction (to the junction table) for each beneficiary
-	for _, beneficiaryID := range newTransaction.Beneficiaries {
+	// Save a expense (to the junction table) for each beneficiary
+	for _, beneficiaryID := range newExpense.Beneficiaries {
 		tx, err = db.Begin()
 		if err != nil {
 			log.Print(err)
 		}
 		stmt, err = tx.Prepare(`
-			INSERT INTO transactions_beneficiaries 
+			INSERT INTO expenses_beneficiaries 
 			VALUES(?, ?) 
 		`)
 		stmt.Exec(
@@ -183,13 +183,13 @@ func CreateTransaction(c *gin.Context) {
 		http.StatusCreated,
 		gin.H{
 			"status":  http.StatusCreated,
-			"message": "Transaction created successfully.",
+			"message": "Expense created successfully.",
 			"data":    lastInsertID,
 		},
 	)
 }
 
-func ListTransactions(c *gin.Context) {
+func ListExpenses(c *gin.Context) {
 	var (
 		ID            int
 		Description   string
@@ -197,7 +197,7 @@ func ListTransactions(c *gin.Context) {
 		Amount        int
 		BeneficiaryID int
 		Beneficiaries []int
-		responseData  []transformedTransaction
+		responseData  []transformedExpense
 	)
 	db, err := database.NewDB()
 	if err != nil {
@@ -206,7 +206,7 @@ func ListTransactions(c *gin.Context) {
 	defer db.Close()
 
 	// Prepare SELECT statement
-	stmt, err := db.Prepare("SELECT * FROM transactions")
+	stmt, err := db.Prepare("SELECT * FROM expenses")
 	if err != nil {
 		log.Print(err)
 	}
@@ -224,11 +224,11 @@ func ListTransactions(c *gin.Context) {
 			log.Print(err)
 		}
 
-		// Run second query to retrieve transactions_beneficiaries data
+		// Run second query to retrieve expenses_beneficiaries data
 		stmt, err = db.Prepare(`
 			SELECT beneficiary_id 
-			FROM transactions_beneficiaries 
-			WHERE transaction_id = ?
+			FROM expenses_beneficiaries 
+			WHERE expense_id = ?
 		`)
 		if err != nil {
 			log.Print(err)
@@ -247,7 +247,7 @@ func ListTransactions(c *gin.Context) {
 			}
 			Beneficiaries = append(Beneficiaries, BeneficiaryID)
 		}
-		responseData = append(responseData, transformedTransaction{ID, Description, Purchaser, Amount, Beneficiaries})
+		responseData = append(responseData, transformedExpense{ID, Description, Purchaser, Amount, Beneficiaries})
 		Beneficiaries = nil
 	}
 	err = rows.Err()
@@ -258,7 +258,7 @@ func ListTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-func ShowTransaction(c *gin.Context) {
+func ShowExpense(c *gin.Context) {
 	var (
 		ID            int
 		Description   string
@@ -266,7 +266,7 @@ func ShowTransaction(c *gin.Context) {
 		Amount        int
 		BeneficiaryID int
 		Beneficiaries []int
-		responseData  transformedTransaction
+		responseData  transformedExpense
 	)
 	db, err := database.NewDB()
 	if err != nil {
@@ -275,19 +275,19 @@ func ShowTransaction(c *gin.Context) {
 
 	defer db.Close()
 
-	TransactionID, err := getID(c)
+	ExpenseID, err := getID(c)
 	if err != nil {
 		log.Print(err)
 	}
 	// Check for invalid ID
-	if TransactionID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
+	if ExpenseID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Expense found!"})
 		return
 	}
 	// Prepare SELECT statement
 	stmt, err := db.Prepare(`
 		SELECT id, description, purchaser, amount
-		FROM transactions
+		FROM expenses
 		WHERE id=?
 	`)
 	if err != nil {
@@ -295,7 +295,7 @@ func ShowTransaction(c *gin.Context) {
 	}
 
 	// Run Query
-	row := stmt.QueryRow(TransactionID)
+	row := stmt.QueryRow(ExpenseID)
 	if err != nil {
 		log.Print(err)
 	}
@@ -314,11 +314,11 @@ func ShowTransaction(c *gin.Context) {
 		log.Print(err)
 	}
 
-	// Retrieve transactions_beneficiaries data
+	// Retrieve expenses_beneficiaries data
 	stmt, err = db.Prepare(`
 		SELECT beneficiary_id 
-		FROM transactions_beneficiaries 
-		WHERE transaction_id = ?
+		FROM expenses_beneficiaries 
+		WHERE expense_id = ?
 	`)
 	if err != nil {
 		log.Print(err)
@@ -338,12 +338,12 @@ func ShowTransaction(c *gin.Context) {
 		Beneficiaries = append(Beneficiaries, BeneficiaryID)
 	}
 
-	responseData = transformedTransaction{ID, Description, Purchaser, Amount, Beneficiaries}
+	responseData = transformedExpense{ID, Description, Purchaser, Amount, Beneficiaries}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-func UpdateTransaction(c *gin.Context) {
+func UpdateExpense(c *gin.Context) {
 
 	db, err := database.NewDB()
 	if err != nil {
@@ -353,25 +353,25 @@ func UpdateTransaction(c *gin.Context) {
 	defer db.Close()
 
 	// Retrieve POST update data
-	transactionID, _ := getID(c)
+	expenseID, _ := getID(c)
 	description := getDescription(c)
 	purchaser, _ := getPurchaser(c)
 	amount, _ := getAmount(c)
 
 	// Check for invalid ID
-	if transactionID == 0 {
+	if expenseID == 0 {
 		c.JSON(
 			http.StatusNotFound,
 			gin.H{
 				"status":  http.StatusNotFound,
-				"message": "No Transaction found!",
+				"message": "No Expense found!",
 			})
 		return
 	}
 	// Prepare SELECT statement
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
-		UPDATE transactions 
+		UPDATE expenses 
 		SET description=?, purchaser=?, amount=?
 		WHERE id=?;
 	`)
@@ -379,27 +379,27 @@ func UpdateTransaction(c *gin.Context) {
 		log.Print(err)
 	}
 
-	// Execute update query for regular transaction data
-	_, err = stmt.Exec(description, purchaser, amount, transactionID)
+	// Execute update query for regular expense data
+	_, err = stmt.Exec(description, purchaser, amount, expenseID)
 	if err != nil {
 		log.Print(err)
 	}
 	tx.Commit()
 
-	// Update transactions_beneficiaries data
+	// Update expenses_beneficiaries data
 	beneficiaries := getBeneficiaries(c)
 
 	// First, delete all old associated beneficiaries
 	tx, err = db.Begin()
 	stmt, err = tx.Prepare(`
-		DELETE FROM transactions_beneficiaries 
-		WHERE transaction_id=?;
+		DELETE FROM expenses_beneficiaries 
+		WHERE expense_id=?;
 	`)
 	if err != nil {
 		log.Print(err)
 	}
 	// Execute update query for beneficiaries
-	_, err = stmt.Exec(transactionID)
+	_, err = stmt.Exec(expenseID)
 	if err != nil {
 		log.Print(err)
 	}
@@ -409,7 +409,7 @@ func UpdateTransaction(c *gin.Context) {
 	for _, beneficiaryID := range beneficiaries {
 		tx, err = db.Begin()
 		stmt, err = tx.Prepare(`
-			INSERT INTO transactions_beneficiaries 
+			INSERT INTO expenses_beneficiaries 
 			VALUES (?, ?);
 		`)
 		if err != nil {
@@ -417,7 +417,7 @@ func UpdateTransaction(c *gin.Context) {
 		}
 
 		// Execute update query for beneficiaries
-		_, err = stmt.Exec(transactionID, beneficiaryID)
+		_, err = stmt.Exec(expenseID, beneficiaryID)
 		if err != nil {
 			log.Print(err)
 		}
@@ -428,12 +428,12 @@ func UpdateTransaction(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"status":  http.StatusOK,
-			"message": "Transaction updated successfully.",
+			"message": "Expense updated successfully.",
 		},
 	)
 }
 
-func DeleteTransaction(c *gin.Context) {
+func DeleteExpense(c *gin.Context) {
 	db, err := database.NewDB()
 	if err != nil {
 		log.Fatal(err)
@@ -441,19 +441,19 @@ func DeleteTransaction(c *gin.Context) {
 
 	defer db.Close()
 
-	TransactionID, err := getID(c)
+	ExpenseID, err := getID(c)
 	if err != nil {
 		log.Print(err)
 	}
 	// Check for invalid ID
-	if TransactionID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Transaction found!"})
+	if ExpenseID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No Expense found!"})
 		return
 	}
 	// Prepare SELECT statement
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
-		DELETE FROM transactions
+		DELETE FROM expenses
 		WHERE id=?
 	`)
 	if err != nil {
@@ -461,7 +461,7 @@ func DeleteTransaction(c *gin.Context) {
 	}
 
 	// Run Query
-	_, err = stmt.Exec(TransactionID)
+	_, err = stmt.Exec(ExpenseID)
 	if err != nil {
 		log.Print(err)
 	}
@@ -470,21 +470,21 @@ func DeleteTransaction(c *gin.Context) {
 	// Delete beneficiary data
 	tx, err = db.Begin()
 	stmt, err = tx.Prepare(`
-		DELETE FROM transactions_beneficiaries
-		WHERE transaction_id=?
+		DELETE FROM expenses_beneficiaries
+		WHERE expense_id=?
 	`)
 	if err != nil {
 		log.Print(err)
 	}
 
 	// Run Query
-	_, err = stmt.Exec(TransactionID)
+	_, err = stmt.Exec(ExpenseID)
 	if err != nil {
 		log.Print(err)
 	}
 	tx.Commit()
 
-	responseMsg := fmt.Sprintf("Transaction %v deleted successfully", TransactionID)
+	responseMsg := fmt.Sprintf("Expense %v deleted successfully", ExpenseID)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
