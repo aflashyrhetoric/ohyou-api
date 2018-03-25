@@ -21,7 +21,9 @@ mysql --defaults-extra-file=mysql.cnf -e \
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     description VARCHAR(200),    
     purchaser INTEGER,
-    amount INTEGER);"
+    amount INTEGER,
+    receipt_id INTEGER
+    );"
 echo "...success!"
 
 echo "Create junction table expenses_beneficiaries..."
@@ -30,6 +32,14 @@ mysql --defaults-extra-file=mysql.cnf -e \
     expense_id INTEGER,
     beneficiary_id INTEGER);"
 
+echo "...success!"
+
+echo "Create receipts table..."
+mysql --defaults-extra-file=mysql.cnf -e \
+  "USE payup_api; CREATE TABLE IF NOT EXISTS receipts (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    merchant VARCHAR(100),    
+    total INTEGER);"
 echo "...success!"
 
 # Run the seeder

@@ -41,12 +41,15 @@ dep ensure
 
 **Ensure that Docker, or other applications that may affect your ports, is NOT running**
 
-Run the provisioning script, which should populate the database and run the seeder (which adds 25 fake records)
+Run the provisioning script, which should populate the database and run the seeder (which adds 25 fake records). 
 
 ```bash
-./provision/mysql-config.sh
+cd provision
+./mysql-config.sh
 
-# You may need to add execution permissions to script with `chmod +x ./provision/mysql-config.sh`
+#### You may need to add execution permissions to script with `chmod +x ./provision/mysql-config.sh`
+#### Note that running the script from another directory may not work.
+
 ```
 #### Seed database w/ test data
 

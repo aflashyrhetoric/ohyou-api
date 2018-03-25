@@ -21,6 +21,7 @@ type (
 		description string `db:"description"`
 		purchaser   int    `db:"purchaser"`
 		amount      int    `db:"amount"`
+		receiptID   int    `db:"receipt_id"`
 	}
 	// TransformedExpense ... is a Expense with additional information
 	transformedExpense struct {
@@ -28,6 +29,7 @@ type (
 		Description   string `json:"description"`
 		Purchaser     int    `json:"purchaser"`
 		Amount        int    `json:"amount"`
+		ReceiptID     int    `json:"receipt_id"`
 		Beneficiaries []int  `json:"beneficiaries"`
 	}
 )
@@ -103,6 +105,11 @@ func getAmount(c *gin.Context) (int, error) {
 	return utils.ConvertDollarsStringToCents(c.PostForm("amount"))
 }
 
+func getReceiptID(c *gin.Context) (int, error) {
+	return strconv.Atoi(c.PostForm("receipt_id"))
+}
+
+// CreateExpense ... Creates a new Expense
 func CreateExpense(c *gin.Context) {
 
 	// Initial expense
@@ -123,6 +130,10 @@ func CreateExpense(c *gin.Context) {
 	if err != nil {
 		log.Print(err)
 	}
+	receiptID, err := getReceiptID(c)
+	if err != nil {
+		log.Print(err)
+	}
 	beneficiaries := getBeneficiaries(c)
 
 	// Build up model to be saved
@@ -131,6 +142,7 @@ func CreateExpense(c *gin.Context) {
 		Purchaser:     int(purchaser),
 		Amount:        amount,
 		Beneficiaries: beneficiaries,
+		ReceiptID:     receiptID,
 	}
 
 	tx, err := db.Begin()
@@ -139,7 +151,7 @@ func CreateExpense(c *gin.Context) {
 	}
 	stmt, err := tx.Prepare(`
 		INSERT INTO expenses 
-		VALUES(NULL, ?, ?, ?)
+		VALUES(NULL, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		log.Print(err)
@@ -147,7 +159,9 @@ func CreateExpense(c *gin.Context) {
 	res, err := stmt.Exec(
 		newExpense.Description,
 		newExpense.Amount,
-		newExpense.Purchaser)
+		newExpense.Purchaser,
+		newExpense.ReceiptID,
+	)
 	if err != nil {
 		log.Print(err)
 	}
@@ -189,12 +203,14 @@ func CreateExpense(c *gin.Context) {
 	)
 }
 
+// ListExpenses ...Lists all current expenses
 func ListExpenses(c *gin.Context) {
 	var (
 		ID            int
 		Description   string
 		Purchaser     int
 		Amount        int
+		ReceiptID     int
 		BeneficiaryID int
 		Beneficiaries []int
 		responseData  []transformedExpense
@@ -219,7 +235,7 @@ func ListExpenses(c *gin.Context) {
 	defer rows.Close()
 	// Scan values to Go variables
 	for rows.Next() {
-		err := rows.Scan(&ID, &Description, &Purchaser, &Amount)
+		err := rows.Scan(&ID, &Description, &Purchaser, &Amount, &ReceiptID)
 		if err != nil {
 			log.Print(err)
 		}
@@ -247,7 +263,7 @@ func ListExpenses(c *gin.Context) {
 			}
 			Beneficiaries = append(Beneficiaries, BeneficiaryID)
 		}
-		responseData = append(responseData, transformedExpense{ID, Description, Purchaser, Amount, Beneficiaries})
+		responseData = append(responseData, transformedExpense{ID, Description, Purchaser, Amount, ReceiptID, Beneficiaries})
 		Beneficiaries = nil
 	}
 	err = rows.Err()
@@ -258,12 +274,14 @@ func ListExpenses(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
+// ShowExpenses ...Show expenses based on ID
 func ShowExpense(c *gin.Context) {
 	var (
 		ID            int
 		Description   string
 		Purchaser     int
 		Amount        int
+		ReceiptID     int
 		BeneficiaryID int
 		Beneficiaries []int
 		responseData  transformedExpense
@@ -286,7 +304,7 @@ func ShowExpense(c *gin.Context) {
 	}
 	// Prepare SELECT statement
 	stmt, err := db.Prepare(`
-		SELECT id, description, purchaser, amount
+		SELECT id, description, purchaser, amount, receipt_id
 		FROM expenses
 		WHERE id=?
 	`)
@@ -301,7 +319,7 @@ func ShowExpense(c *gin.Context) {
 	}
 
 	// Scan values to Go variables
-	err = row.Scan(&ID, &Description, &Purchaser, &Amount)
+	err = row.Scan(&ID, &Description, &Purchaser, &Amount, &ReceiptID)
 	if err == sql.ErrNoRows {
 		c.JSON(
 			http.StatusNotFound,
@@ -338,11 +356,12 @@ func ShowExpense(c *gin.Context) {
 		Beneficiaries = append(Beneficiaries, BeneficiaryID)
 	}
 
-	responseData = transformedExpense{ID, Description, Purchaser, Amount, Beneficiaries}
+	responseData = transformedExpense{ID, Description, Purchaser, Amount, ReceiptID, Beneficiaries}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
+// UpdateExpense ... Updates an expense based on ID, with POST data
 func UpdateExpense(c *gin.Context) {
 
 	db, err := database.NewDB()
@@ -357,6 +376,7 @@ func UpdateExpense(c *gin.Context) {
 	description := getDescription(c)
 	purchaser, _ := getPurchaser(c)
 	amount, _ := getAmount(c)
+	receiptID, _ := getReceiptID(c)
 
 	// Check for invalid ID
 	if expenseID == 0 {
@@ -372,7 +392,7 @@ func UpdateExpense(c *gin.Context) {
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 		UPDATE expenses 
-		SET description=?, purchaser=?, amount=?
+		SET description=?, purchaser=?, amount=?, receipt_id=?
 		WHERE id=?;
 	`)
 	if err != nil {
@@ -380,7 +400,7 @@ func UpdateExpense(c *gin.Context) {
 	}
 
 	// Execute update query for regular expense data
-	_, err = stmt.Exec(description, purchaser, amount, expenseID)
+	_, err = stmt.Exec(description, purchaser, amount, receiptID, expenseID)
 	if err != nil {
 		log.Print(err)
 	}
@@ -433,6 +453,7 @@ func UpdateExpense(c *gin.Context) {
 	)
 }
 
+// DeleteExpense ... Deletes an expense based on ID
 func DeleteExpense(c *gin.Context) {
 	db, err := database.NewDB()
 	if err != nil {
