@@ -53,9 +53,6 @@ Run the provisioning script, which should populate the database and run the seed
 To run the seeder ONLY, or to add more records to the database, run the following:
 
 ```bash
-cd provision
-go run seeder.go
-# or
 go run provision/seeder.go
 ```
 
