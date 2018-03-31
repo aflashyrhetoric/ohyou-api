@@ -21,8 +21,9 @@ func main() {
 	}
 	defer db.Close()
 
-	numberOfRecords := 25
+	numberOfRecords := 40
 	groupCount := 4
+	receiptCount := 6
 
 	// Create numberOfRecords records
 	for i := 0; i < numberOfRecords; i++ {
@@ -30,6 +31,7 @@ func main() {
 		description = description[:10]
 		purchaser := rand.Intn(groupCount) + 1
 		amount := rand.Intn(8000) + 100
+		receiptID := rand.Intn(receiptCount)
 
 		// Step 1: Initial expense
 		fmt.Printf("Seeding Expense %v...\n", i+1)
@@ -39,15 +41,19 @@ func main() {
 		}
 		stmt, err := tx.Prepare(`
 			INSERT INTO expenses 
-			VALUES(NULL, ?, ?, ?)
+			VALUES(NULL, ?, ?, ?, ?)
 		`)
 		if err != nil {
 			log.Fatal(err)
 		}
+		if utils.RandomBool() {
+			receiptID = 0
+		}
 		res, err := stmt.Exec(
 			description,
 			purchaser,
-			amount)
+			amount,
+			receiptID)
 
 		lastInsertID, err := res.LastInsertId()
 		if err != nil {

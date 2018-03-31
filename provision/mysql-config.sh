@@ -21,7 +21,8 @@ mysql --defaults-extra-file=mysql.cnf -e \
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     description VARCHAR(200),    
     purchaser INTEGER,
-    amount INTEGER);"
+    amount INTEGER,
+    receipt_id INTEGER);"
 echo "...success!"
 
 echo "Create junction table expenses_beneficiaries..."

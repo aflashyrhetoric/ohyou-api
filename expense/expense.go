@@ -21,6 +21,7 @@ type (
 		description string `db:"description"`
 		purchaser   int    `db:"purchaser"`
 		amount      int    `db:"amount"`
+		receipt_id  int    `db:"receipt_id"`
 	}
 	// TransformedExpense ... is a Expense with additional information
 	transformedExpense struct {
@@ -29,6 +30,7 @@ type (
 		Purchaser     int    `json:"purchaser"`
 		Amount        int    `json:"amount"`
 		Beneficiaries []int  `json:"beneficiaries"`
+		ReceiptID     int    `json:"receipt_id"`
 	}
 )
 
@@ -103,6 +105,11 @@ func getAmount(c *gin.Context) (int, error) {
 	return utils.ConvertDollarsStringToCents(c.PostForm("amount"))
 }
 
+func getReceiptID(c *gin.Context) (int, error) {
+	return strconv.Atoi(c.Param("receipt_id"))
+}
+
+// CreateExpense ... Saves an Expense to the DB
 func CreateExpense(c *gin.Context) {
 
 	// Initial expense
@@ -124,6 +131,10 @@ func CreateExpense(c *gin.Context) {
 		log.Print(err)
 	}
 	beneficiaries := getBeneficiaries(c)
+	receiptID, err := getReceiptID(c)
+	if err != nil {
+		log.Print(err)
+	}
 
 	// Build up model to be saved
 	newExpense := transformedExpense{
@@ -131,6 +142,7 @@ func CreateExpense(c *gin.Context) {
 		Purchaser:     int(purchaser),
 		Amount:        amount,
 		Beneficiaries: beneficiaries,
+		ReceiptID:     receiptID,
 	}
 
 	tx, err := db.Begin()
@@ -139,7 +151,7 @@ func CreateExpense(c *gin.Context) {
 	}
 	stmt, err := tx.Prepare(`
 		INSERT INTO expenses 
-		VALUES(NULL, ?, ?, ?)
+		VALUES(NULL, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		log.Print(err)
@@ -147,7 +159,8 @@ func CreateExpense(c *gin.Context) {
 	res, err := stmt.Exec(
 		newExpense.Description,
 		newExpense.Amount,
-		newExpense.Purchaser)
+		newExpense.Purchaser,
+		newExpense.ReceiptID)
 	if err != nil {
 		log.Print(err)
 	}
@@ -189,6 +202,7 @@ func CreateExpense(c *gin.Context) {
 	)
 }
 
+//ListExpenses ...Lists all current expenses
 func ListExpenses(c *gin.Context) {
 	var (
 		ID            int
@@ -197,6 +211,7 @@ func ListExpenses(c *gin.Context) {
 		Amount        int
 		BeneficiaryID int
 		Beneficiaries []int
+		ReceiptID     int
 		responseData  []transformedExpense
 	)
 	db, err := database.NewDB()
@@ -219,7 +234,7 @@ func ListExpenses(c *gin.Context) {
 	defer rows.Close()
 	// Scan values to Go variables
 	for rows.Next() {
-		err := rows.Scan(&ID, &Description, &Purchaser, &Amount)
+		err := rows.Scan(&ID, &Description, &Purchaser, &Amount, &ReceiptID)
 		if err != nil {
 			log.Print(err)
 		}
@@ -247,7 +262,7 @@ func ListExpenses(c *gin.Context) {
 			}
 			Beneficiaries = append(Beneficiaries, BeneficiaryID)
 		}
-		responseData = append(responseData, transformedExpense{ID, Description, Purchaser, Amount, Beneficiaries})
+		responseData = append(responseData, transformedExpense{ID, Description, Purchaser, Amount, Beneficiaries, ReceiptID})
 		Beneficiaries = nil
 	}
 	err = rows.Err()
@@ -258,6 +273,7 @@ func ListExpenses(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
+// ShowExpense shows a single expense
 func ShowExpense(c *gin.Context) {
 	var (
 		ID            int
@@ -266,6 +282,7 @@ func ShowExpense(c *gin.Context) {
 		Amount        int
 		BeneficiaryID int
 		Beneficiaries []int
+		ReceiptID     int
 		responseData  transformedExpense
 	)
 	db, err := database.NewDB()
@@ -286,7 +303,7 @@ func ShowExpense(c *gin.Context) {
 	}
 	// Prepare SELECT statement
 	stmt, err := db.Prepare(`
-		SELECT id, description, purchaser, amount
+		SELECT id, description, purchaser, amount, receipt_id
 		FROM expenses
 		WHERE id=?
 	`)
@@ -301,7 +318,7 @@ func ShowExpense(c *gin.Context) {
 	}
 
 	// Scan values to Go variables
-	err = row.Scan(&ID, &Description, &Purchaser, &Amount)
+	err = row.Scan(&ID, &Description, &Purchaser, &Amount, &ReceiptID)
 	if err == sql.ErrNoRows {
 		c.JSON(
 			http.StatusNotFound,
@@ -338,11 +355,12 @@ func ShowExpense(c *gin.Context) {
 		Beneficiaries = append(Beneficiaries, BeneficiaryID)
 	}
 
-	responseData = transformedExpense{ID, Description, Purchaser, Amount, Beneficiaries}
+	responseData = transformedExpense{ID, Description, Purchaser, Amount, Beneficiaries, ReceiptID}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
+// UpdateExpense updates a single expense in db with new fields
 func UpdateExpense(c *gin.Context) {
 
 	db, err := database.NewDB()
@@ -357,6 +375,7 @@ func UpdateExpense(c *gin.Context) {
 	description := getDescription(c)
 	purchaser, _ := getPurchaser(c)
 	amount, _ := getAmount(c)
+	receiptID, _ := getReceiptID(c)
 
 	// Check for invalid ID
 	if expenseID == 0 {
@@ -372,7 +391,7 @@ func UpdateExpense(c *gin.Context) {
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 		UPDATE expenses 
-		SET description=?, purchaser=?, amount=?
+		SET description=?, purchaser=?, amount=?, receipt=?
 		WHERE id=?;
 	`)
 	if err != nil {
@@ -380,7 +399,7 @@ func UpdateExpense(c *gin.Context) {
 	}
 
 	// Execute update query for regular expense data
-	_, err = stmt.Exec(description, purchaser, amount, expenseID)
+	_, err = stmt.Exec(description, purchaser, amount, receiptID, expenseID)
 	if err != nil {
 		log.Print(err)
 	}
