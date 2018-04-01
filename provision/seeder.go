@@ -27,8 +27,8 @@ func main() {
 
 	// Create numberOfRecords records
 	for i := 0; i < numberOfRecords; i++ {
-		description := fake.Paragraph()
-		description = description[:10]
+		description := fake.Product()
+		// description = description[:10]
 		purchaser := rand.Intn(groupCount) + 1
 		amount := rand.Intn(8000) + 100
 		receiptID := rand.Intn(receiptCount)
