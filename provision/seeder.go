@@ -33,6 +33,9 @@ func main() {
 		amount := rand.Intn(8000) + 100
 		receiptID := rand.Intn(receiptCount)
 
+		// TODO: Hard-coded Receipt ID, for now
+		receiptID := 15
+
 		// Step 1: Initial expense
 		fmt.Printf("Seeding Expense %v...\n", i+1)
 		tx, err := db.Begin()
@@ -83,6 +86,36 @@ func main() {
 			tx.Commit()
 			fmt.Printf("...beneficiary %v saved!\n", index)
 		}
+
+		// Step 3: Generate Receipts data
+		merchant := fake.Words()
+		total := rand.Intn(12000) + 100
+
+		fmt.Printf("Seeding Receipt %v...\n", i+1)
+		tx, err = db.Begin()
+		if err != nil {
+			log.Fatal(err)
+		}
+		stmt, err = tx.Prepare(`
+			INSERT INTO receipts 
+			VALUES(NULL, ?, ?)
+		`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		res, err = stmt.Exec(
+			merchant,
+			total)
+
+		lastInsertID, err = res.LastInsertId()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Save
+		tx.Commit()
+		fmt.Print("...initial receipt saved!\n")
+
 		fmt.Print("...success!\n")
 		fmt.Print("-----------\n")
 	}
