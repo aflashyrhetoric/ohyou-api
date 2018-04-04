@@ -3,24 +3,35 @@ package main
 import (
 	"os"
 
-	t "github.com/aflashyrhetoric/payup-api/expense"
+	e "github.com/aflashyrhetoric/payup-api/expense"
+	r "github.com/aflashyrhetoric/payup-api/receipt"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 
-  os.Setenv("PORT", "8114")
-
+	os.Setenv("PORT", "8114")
 
 	// Configure Router
 	router := gin.Default()
-	v1 := router.Group("/api/v1/expenses")
+	expenseRoutes := router.Group("/api/v1/expenses")
 	{
-		v1.GET("", t.ListExpenses)
-		v1.POST("/", t.CreateExpense)
-		v1.GET("/:id", t.ShowExpense)
-		v1.PUT("/:id", t.UpdateExpense)
-		v1.DELETE("/:id", t.DeleteExpense)
+		expenseRoutes.GET("", e.ListExpenses)
+		expenseRoutes.POST("/", e.CreateExpense)
+		expenseRoutes.GET("/:id", e.ShowExpense)
+		expenseRoutes.PUT("/:id", e.UpdateExpense)
+		expenseRoutes.DELETE("/:id", e.DeleteExpense)
 	}
+
+	receiptRoutes := router.Group("/api/v1/receipts")
+	{
+		// Disable ListReceipts
+		// receiptRoutes.GET("/", r.ListReceipts)
+		receiptRoutes.POST("/", r.CreateReceipt)
+		receiptRoutes.GET("/:id", r.ShowReceipt)
+		receiptRoutes.PUT("/:id", r.UpdateReceipt)
+		receiptRoutes.DELETE("/:id", r.DeleteReceipt)
+	}
+
 	router.Run()
 }

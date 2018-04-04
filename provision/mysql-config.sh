@@ -33,5 +33,13 @@ mysql --defaults-extra-file=mysql.cnf -e \
 
 echo "...success!"
 
+echo "Create receipts table..."
+mysql --defaults-extra-file=mysql.cnf -e \
+  "USE payup_api; CREATE TABLE IF NOT EXISTS receipts (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    merchant VARCHAR(100),    
+    total INTEGER);"
+echo "...success!"
+
 # Run the seeder
 # go run seeder.go

@@ -21,7 +21,7 @@ type (
 		description string `db:"description"`
 		purchaser   int    `db:"purchaser"`
 		amount      int    `db:"amount"`
-		receipt_id  int    `db:"receipt_id"`
+		receiptID   int    `db:"receipt_id"`
 	}
 	// TransformedExpense ... is a Expense with additional information
 	transformedExpense struct {
@@ -106,7 +106,8 @@ func getAmount(c *gin.Context) (int, error) {
 }
 
 func getReceiptID(c *gin.Context) (int, error) {
-	return strconv.Atoi(c.Param("receipt_id"))
+	// return strconv.Atoi(c.Param("receipt_id"))
+	return strconv.Atoi(c.PostForm("receipt_id"))
 }
 
 // CreateExpense ... Saves an Expense to the DB
@@ -160,7 +161,8 @@ func CreateExpense(c *gin.Context) {
 		newExpense.Description,
 		newExpense.Amount,
 		newExpense.Purchaser,
-		newExpense.ReceiptID)
+		newExpense.ReceiptID,
+	)
 	if err != nil {
 		log.Print(err)
 	}
@@ -202,7 +204,7 @@ func CreateExpense(c *gin.Context) {
 	)
 }
 
-//ListExpenses ...Lists all current expenses
+// ListExpenses ...Lists all current expenses
 func ListExpenses(c *gin.Context) {
 	var (
 		ID            int
@@ -273,7 +275,7 @@ func ListExpenses(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-// ShowExpense shows a single expense
+// ShowExpenses ...Show expenses based on ID
 func ShowExpense(c *gin.Context) {
 	var (
 		ID            int
@@ -360,7 +362,7 @@ func ShowExpense(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-// UpdateExpense updates a single expense in db with new fields
+// UpdateExpense ... Updates an expense based on ID, with POST data
 func UpdateExpense(c *gin.Context) {
 
 	db, err := database.NewDB()
@@ -391,7 +393,7 @@ func UpdateExpense(c *gin.Context) {
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 		UPDATE expenses 
-		SET description=?, purchaser=?, amount=?, receipt=?
+		SET description=?, purchaser=?, amount=?, receipt_id=?
 		WHERE id=?;
 	`)
 	if err != nil {
@@ -452,6 +454,7 @@ func UpdateExpense(c *gin.Context) {
 	)
 }
 
+// DeleteExpense ... Deletes an expense based on ID
 func DeleteExpense(c *gin.Context) {
 	db, err := database.NewDB()
 	if err != nil {
