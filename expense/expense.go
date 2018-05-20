@@ -204,6 +204,10 @@ func CreateExpense(c *gin.Context) {
 	)
 }
 
+func CreateExpenseFromReceipt(c *gin.Context) {
+
+}
+
 // ListExpenses ...Lists all current expenses
 func ListExpenses(c *gin.Context) {
 	var (

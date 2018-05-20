@@ -64,7 +64,7 @@ func CreateReceipt(c *gin.Context) {
 		log.Print(err)
 	}
 	stmt, err := tx.Prepare(`
-		INSERT INTO expenses 
+		INSERT INTO receipts 
 		VALUES(NULL, ?, ?)
 	`)
 	if err != nil {
