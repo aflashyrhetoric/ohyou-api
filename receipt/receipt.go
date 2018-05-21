@@ -96,7 +96,7 @@ func CreateReceipt(c *gin.Context) {
 // ShowReceipt ...show a receipt based on its ID
 func ShowReceipt(c *gin.Context) {
 	var (
-		ID           int
+		id           int
 		merchant     string
 		total        int
 		responseData Receipt
@@ -134,7 +134,7 @@ func ShowReceipt(c *gin.Context) {
 	}
 
 	// Scan values to Go variables
-	err = row.Scan(&ID, &merchant, &total)
+	err = row.Scan(&id, &merchant, &total)
 	if err == sql.ErrNoRows {
 		c.JSON(
 			http.StatusNotFound,
@@ -147,7 +147,7 @@ func ShowReceipt(c *gin.Context) {
 		log.Print(err)
 	}
 
-	responseData = Receipt{ID, merchant, total}
+	responseData = Receipt{id, merchant, total}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
@@ -180,7 +180,7 @@ func UpdateReceipt(c *gin.Context) {
 	// Prepare SELECT statement
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
-		UPDATE expenses 
+		UPDATE receipts 
 		SET merchant=?, total=?
 		WHERE id=?;
 	`)
