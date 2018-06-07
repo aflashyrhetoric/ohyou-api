@@ -16,9 +16,9 @@ type (
 
 	// Receipt ... is a single receipt
 	Receipt struct {
-		id       int    `db:"id"`
-		merchant string `db:"merchant"`
-		total    int    `db:"total"`
+		ID       int    `db:"id"`
+		Merchant string `db:"merchant"`
+		Total    int    `db:"total"`
 	}
 )
 
@@ -55,8 +55,8 @@ func CreateReceipt(c *gin.Context) {
 
 	// Build up model to be saved
 	newReceipt := Receipt{
-		merchant: merchant,
-		total:    total,
+		Merchant: merchant,
+		Total:    total,
 	}
 
 	tx, err := db.Begin()
@@ -71,8 +71,8 @@ func CreateReceipt(c *gin.Context) {
 		log.Print(err)
 	}
 	res, err := stmt.Exec(
-		newReceipt.merchant,
-		newReceipt.total)
+		newReceipt.Merchant,
+		newReceipt.Total)
 	if err != nil {
 		log.Print(err)
 	}
@@ -96,9 +96,9 @@ func CreateReceipt(c *gin.Context) {
 // ShowReceipt ...show a receipt based on its ID
 func ShowReceipt(c *gin.Context) {
 	var (
-		id           int
-		merchant     string
-		total        int
+		ID           int
+		Merchant     string
+		Total        int
 		responseData Receipt
 	)
 	db, err := database.NewDB()
@@ -119,7 +119,7 @@ func ShowReceipt(c *gin.Context) {
 	}
 	// Prepare SELECT statement
 	stmt, err := db.Prepare(`
-		SELECT id, merchant, total
+		SELECT *
 		FROM receipts
 		WHERE id=?
 	`)
@@ -134,7 +134,7 @@ func ShowReceipt(c *gin.Context) {
 	}
 
 	// Scan values to Go variables
-	err = row.Scan(&id, &merchant, &total)
+	err = row.Scan(&ID, &Merchant, &Total)
 	if err == sql.ErrNoRows {
 		c.JSON(
 			http.StatusNotFound,
@@ -146,8 +146,7 @@ func ShowReceipt(c *gin.Context) {
 	} else if err != nil {
 		log.Print(err)
 	}
-
-	responseData = Receipt{id, merchant, total}
+	responseData = Receipt{ID, Merchant, Total}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
