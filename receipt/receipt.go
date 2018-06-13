@@ -151,7 +151,7 @@ func ShowReceipt(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-// UpdateReceipt ... will update a receipt based on its ID
+// UpdateReceipt ... updates a receipt based on its ID
 func UpdateReceipt(c *gin.Context) {
 
 	db, err := database.NewDB()
@@ -224,7 +224,7 @@ func DeleteReceipt(c *gin.Context) {
 	// Prepare SELECT statement
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
-		DELETE FROM expenses
+		DELETE FROM receipts
 		WHERE id=?
 	`)
 	if err != nil {
