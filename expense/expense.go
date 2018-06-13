@@ -275,7 +275,7 @@ func ListExpenses(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": responseData})
 }
 
-// ShowExpenses ...Show expenses based on ID
+// ShowExpense ... Show expenses based on ID
 func ShowExpense(c *gin.Context) {
 	var (
 		ID            int
