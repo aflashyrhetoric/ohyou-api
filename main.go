@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	auth "github.com/aflashyrhetoric/payup-api/auth"
 	e "github.com/aflashyrhetoric/payup-api/expense"
 	r "github.com/aflashyrhetoric/payup-api/receipt"
 	"github.com/gin-gonic/gin"
@@ -33,5 +34,12 @@ func main() {
 		receiptRoutes.DELETE("/:id", r.DeleteReceipt)
 	}
 
+	authRoutes := router.Group("/api/v1/auth")
+	{
+		receiptRoutes.POST("/", auth.CreateUser)
+		receiptRoutes.GET("/:id", auth.ShowUser)
+		receiptRoutes.PUT("/:id", auth.UpdateUser)
+		receiptRoutes.DELETE("/:id", auth.DeleteUser)
+	}
 	router.Run()
 }
