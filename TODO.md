@@ -3,3 +3,9 @@
 Check front-end JWT signing libraries (automatic signing & sending with POST)
 4. Enable "protected routes" on front-end 
 5. Look into creating container orchestration with docker-compose or kubernetes
+
+// Model for User
+
+|Field|Type|
+Email|varchar
+Password|varchar

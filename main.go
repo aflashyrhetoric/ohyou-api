@@ -36,10 +36,8 @@ func main() {
 
 	authRoutes := router.Group("/api/v1/auth")
 	{
-		receiptRoutes.POST("/", auth.CreateUser)
-		receiptRoutes.GET("/:id", auth.ShowUser)
-		receiptRoutes.PUT("/:id", auth.UpdateUser)
-		receiptRoutes.DELETE("/:id", auth.DeleteUser)
+		authRoutes.POST("/register", auth.Register)
+		authRoutes.POST("/login", auth.Login)
 	}
 	router.Run()
 }
