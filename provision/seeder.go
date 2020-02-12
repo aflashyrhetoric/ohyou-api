@@ -11,7 +11,7 @@ import (
 	"github.com/icrowley/fake"
 )
 
-// SeedTransactions ... Seeds database with sample data.
+// SeedExpenses ... Seeds database with sample data.
 func main() {
 
 	// Connect to database
@@ -21,33 +21,42 @@ func main() {
 	}
 	defer db.Close()
 
-	numberOfRecords := 25
+	numberOfRecords := 40
 	groupCount := 4
+	receiptCount := 6
 
 	// Create numberOfRecords records
 	for i := 0; i < numberOfRecords; i++ {
-		description := fake.Paragraph()
-		description = description[:10]
+		description := fake.Product()
+		// description = description[:10]
 		purchaser := rand.Intn(groupCount) + 1
 		amount := rand.Intn(8000) + 100
+		receiptID := rand.Intn(receiptCount)
 
-		// Step 1: Initial transaction
-		fmt.Printf("Seeding Transaction %v...\n", i+1)
+		// TODO: Hard-coded Receipt ID, for now
+		receiptID := 15
+
+		// Step 1: Initial expense
+		fmt.Printf("Seeding Expense %v...\n", i+1)
 		tx, err := db.Begin()
 		if err != nil {
 			log.Fatal(err)
 		}
 		stmt, err := tx.Prepare(`
-			INSERT INTO transactions 
-			VALUES(NULL, ?, ?, ?)
+			INSERT INTO expenses 
+			VALUES(NULL, ?, ?, ?, ?)
 		`)
 		if err != nil {
 			log.Fatal(err)
 		}
+		if utils.RandomBool() {
+			receiptID = 0
+		}
 		res, err := stmt.Exec(
 			description,
 			purchaser,
-			amount)
+			amount,
+			receiptID)
 
 		lastInsertID, err := res.LastInsertId()
 		if err != nil {
@@ -56,9 +65,9 @@ func main() {
 
 		// Save
 		tx.Commit()
-		fmt.Print("...initial transaction saved!\n")
+		fmt.Print("...initial expense saved!\n")
 
-		// Step 2: Generate TransactionBeneficiaries data
+		// Step 2: Generate ExpenseBeneficiaries data
 		beneficiaries := generateRandomBeneficiaries(groupCount)
 
 		for index, beneficiaryID := range beneficiaries {
@@ -67,7 +76,7 @@ func main() {
 				log.Fatal(err)
 			}
 			stmt, err = tx.Prepare(`
-				INSERT INTO transactions_beneficiaries 
+				INSERT INTO expenses_beneficiaries 
 				VALUES(?, ?) 
 			`)
 			stmt.Exec(lastInsertID, beneficiaryID)
@@ -77,6 +86,36 @@ func main() {
 			tx.Commit()
 			fmt.Printf("...beneficiary %v saved!\n", index)
 		}
+
+		// Step 3: Generate Receipts data
+		merchant := fake.Words()
+		total := rand.Intn(12000) + 100
+
+		fmt.Printf("Seeding Receipt %v...\n", i+1)
+		tx, err = db.Begin()
+		if err != nil {
+			log.Fatal(err)
+		}
+		stmt, err = tx.Prepare(`
+			INSERT INTO receipts 
+			VALUES(NULL, ?, ?)
+		`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		res, err = stmt.Exec(
+			merchant,
+			total)
+
+		lastInsertID, err = res.LastInsertId()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Save
+		tx.Commit()
+		fmt.Print("...initial receipt saved!\n")
+
 		fmt.Print("...success!\n")
 		fmt.Print("-----------\n")
 	}

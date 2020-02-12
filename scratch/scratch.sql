@@ -1,9 +1,9 @@
 select  td.*, PurchaserId = utp.UserId, BeneficiaryId = utb.UserId
 into    #main
-from    TransactionDetail td
-join    UserTransaction utp  ON  utp.TransactionId = td.TransactionId
+from    ExpenseDetail td
+join    UserExpense utp  ON  utp.ExpenseId = td.ExpenseId
                             AND  utp.UserType = 'PURCHASER'
-join    UserTransaction utb  ON  utb.TransactionId = td.TransactionId
+join    UserExpense utb  ON  utb.ExpenseId = td.ExpenseId
                             AND  utb.UserType = 'BENEFICIARY'
 
 select  *
