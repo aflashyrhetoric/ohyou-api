@@ -41,12 +41,15 @@ dep ensure
 
 **Ensure that Docker, or other applications that may affect your ports, is NOT running**
 
-Run the provisioning script, which should populate the database and run the seeder (which adds 25 fake records)
+Run the provisioning script, which should populate the database and run the seeder (which adds 25 fake records). 
 
 ```bash
-./provision/mysql-config.sh
+cd provision
+./mysql-config.sh
 
-# You may need to add execution permissions to script with `chmod +x ./provision/mysql-config.sh`
+#### You may need to add execution permissions to script with `chmod +x ./provision/mysql-config.sh`
+#### Note that running the script from another directory may not work.
+
 ```
 #### Seed database w/ test data
 
@@ -71,9 +74,9 @@ For now, `main.go` will connect to your database via the hardcoded parameter str
 db, err = sql.Open("mysql", "root:password@tcp(localhost:3306)/ohyou_api")
 ```
 
-The API should now be running the API on localhost on port 8080. :smile_cat:
+The API should now be running the API on localhost on port 8114. :smile_cat:
 
-_NOTE: Visiting `http://localhost:8080` will do nothing! The endpoints are available, but no pages!_
+_NOTE: Visiting `http://localhost:8114` will do nothing! The endpoints are available, but no pages!_
 
 ## Testing & Development Workflow
 
@@ -85,23 +88,23 @@ I use [Visual Studio Code](https://code.visualstudio.com) with Go language suppo
 ## API Overview
 
 ## Parameters
-### Transaction
+### Expense
 
 |Property|Type|Content|Default|Example Value|
 |--------|--------------|----------|--------|--------| 
-|Description|String|A short description of the transaction|N/A|Dozen eggs|
+|Description|String|A short description of the expense|N/A|Dozen eggs|
 |Purchaser|uint|User ID for user who purchased|N/A|4|
 |Amount|uint|Cost of purchase in pennies (in USD for now)|0|500|
-|Beneficiaries|[]int|User IDs of users who benefitted from transaction|0|500|
+|Beneficiaries|[]int|User IDs of users who benefitted from expense|0|500|
 
 ## Endpoints
 
-### Transaction
+### Expense
 | HTTP Method | Endpoint          | Method       | 
 |:------------|:------------------|:------------------|
-| GET         | /transactions/    | listTransaction   |
-| POST        | /transactions/    | createTransaction |
-| GET         | /transactions/:id | showTransaction   |
-| PUT         | /transactions/:id | updateTransaction |
-| DELETE      | /transactions/:id | deleteTransaction |
+| GET         | /expenses/    | listExpense   |
+| POST        | /expenses/    | createExpense |
+| GET         | /expenses/:id | showExpense   |
+| PUT         | /expenses/:id | updateExpense |
+| DELETE      | /expenses/:id | deleteExpense |
 

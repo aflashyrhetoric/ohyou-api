@@ -2,4 +2,4 @@
 user=root
 password=password
 host=localhost
-MYSQL_ROOT_PASSWORD=password
+# MYSQL_ROOT_PASSWORD=password
